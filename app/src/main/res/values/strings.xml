@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">ware2go</string>
+    <string name="google_api_key">AIzaSyDUHRmn6GHk3BNHYca5ac0cLLfKAbTB6lw</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="checkin_tag">Check In</string>
+    <string name="map_tag">Map</string>
+    <string name="assistance_tag">Get Assistance</string>
+    <string name="action_settings">Settings</string>
+</resources>

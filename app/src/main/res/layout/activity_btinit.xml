@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.jacqu.ware2go.MainActivity">
+
+
+
+    <LinearLayout
+        android:orientation="vertical"
+        tools:layout_editor_absoluteY="0dp"
+        tools:layout_editor_absoluteX="8dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <Button
+                android:id="@+id/turnOn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TURN ON" />
+
+            <Button
+                android:id="@+id/turnOff"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TURN OFF" />
+            <TextView
+                android:id="@+id/btMac"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Status: " />
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            tools:layout_editor_absoluteY="0dp"
+            tools:layout_editor_absoluteX="8dp">
+
+            <Button
+                android:id="@+id/paired"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="List Paired Devices" />
+
+            <Button
+                android:id="@+id/search"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Search new devices / Cancel" />
+
+            <ListView
+                android:id="@+id/listBtDevices"
+                android:layout_width="fill_parent"
+                android:layout_height="200dp" >
+
+            </ListView>
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/recv_msg"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Received" />
+
+            <Button
+                android:id="@+id/pair_dongle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pair with Dongle" />
+
+        </LinearLayout>
+    </LinearLayout>
+
+</android.support.constraint.ConstraintLayout>
