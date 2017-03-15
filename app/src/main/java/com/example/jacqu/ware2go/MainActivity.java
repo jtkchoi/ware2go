@@ -160,7 +160,7 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    public void send_location(String id) {
+    public void send_location(final String id) {
 
         RequestQueue queue = Volley.newRequestQueue(this);
 
@@ -191,7 +191,7 @@ public class MainActivity extends AppCompatActivity
             protected Map<String, String> getParams()
             {
                 Map<String, String>  params = new HashMap<>();
-                params.put("user_id", "3");
+                params.put("user_id", id);
                 params.put("location_id", "1");
 
                 return params;
