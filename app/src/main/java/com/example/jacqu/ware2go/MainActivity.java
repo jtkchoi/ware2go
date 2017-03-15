@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity
     private final static int REQUEST_ENABLE_BT = 1;
     private static final String TAG = "BTTAG";
     private BluetoothAdapter mBluetoothAdapter;
-    private Context context;
+    private Context context = this;
     private TextView text;
     private Button onBtn, offBtn, listBtn, findBtn, dongleBtn;
     private ListView myListView;
@@ -160,9 +160,11 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    public void send_location(View view) {
+    public void send_location(String id) {
+
         RequestQueue queue = Volley.newRequestQueue(this);
 
+        final TextView tv = (TextView) this.findViewById(R.id.server_msg);
         String url = "http://192.168.43.72:3000/visited";
         StringRequest postRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>()
@@ -172,6 +174,8 @@ public class MainActivity extends AppCompatActivity
                         // response
                         Log.d("Response", response);
                         Toast.makeText(getApplicationContext(), response.toString(), Toast.LENGTH_LONG).show();
+                        tv.setText(response);
+                        tv.setVisibility(View.VISIBLE);
                     }
                 },
                 new Response.ErrorListener()
@@ -216,6 +220,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void listBt( View v ){
+        myPairedArrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
+        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         ArrayAdapter<String> pairedDevicesArray = null;
         Log.v(TAG, "Pushed list BT");
         pairedDevices = mBluetoothAdapter.getBondedDevices();
@@ -233,7 +239,6 @@ public class MainActivity extends AppCompatActivity
         BluetoothDevice btd = indexDevices.get(index);
         CreateSerialBluetoothDeviceSocket(btd);
         ConnectToSerialBlueToothDevice();
-
     }
 
     public void connectToDongle(View view){
@@ -375,7 +380,7 @@ public class MainActivity extends AppCompatActivity
         String s = "";
 
         try { // Read from the InputStream using polling and timeout
-            for(int i = 0; i < 200; i ++) { // try to read for 2 seconds max
+            for(int i = 0; i < 1000; i ++) { // try to read for 2 seconds max
                 SystemClock.sleep (10);
                 if( mmInStream.available () > 0) {
                     if((c = (byte) mmInStream.read ()) != '\r') // '\r' terminator

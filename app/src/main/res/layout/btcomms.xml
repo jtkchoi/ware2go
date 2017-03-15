@@ -18,8 +18,18 @@
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"/>
 
+    <TextView
+        android:id="@+id/server_msg"
+        android:visibility="invisible"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:text=""
+        android:onClick="send_location"/>
     <Button
         android:id="@+id/visit"
+        android:layout_below="@+id/server_msg"
         android:visibility="invisible"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

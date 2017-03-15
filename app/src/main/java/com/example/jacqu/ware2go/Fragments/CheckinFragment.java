@@ -4,11 +4,13 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.example.jacqu.ware2go.MainActivity;
 import com.example.jacqu.ware2go.R;
@@ -19,6 +21,7 @@ import com.example.jacqu.ware2go.R;
 
 public class CheckinFragment extends Fragment {
     String pid;
+    String idnum;
 
     @Override
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
@@ -33,18 +36,28 @@ public class CheckinFragment extends Fragment {
         final ListView myListView = (ListView) view.findViewById(R.id.pickdevice);
         final Button myButton = (Button) view.findViewById(R.id.visit);
 
+
         ((MainActivity) this.getActivity()).listBt(view);
 
         final MainActivity ma = (MainActivity) this.getActivity();
+
+
+        TextView tv1 = new TextView(this.getContext());
+        tv1.setText("Select your device and press broadcast.");
+        myListView.addHeaderView(tv1);
+
+
         myListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
 
-                myListView.setVisibility(View.VISIBLE);
-                myButton.setVisibility(View.INVISIBLE);
-                ma.connectFromListView(position);
+                myListView.setVisibility(View.INVISIBLE);
+                myButton.setVisibility(View.VISIBLE);
+                ma.connectFromListView(position-1);
                 pid = ma.ReadFromBTDevice();
-                Log.d("Got from BT: ", pid);
+                idnum = pid.replaceAll("[^0-9]", "");
+
+
             }
         });
         /*ArrayAdatper<String> myPairedArrayAdapter = new ArrayAdapter<String>(this.getActivity(), android.R.layout.simple_list_item_1);
@@ -54,6 +67,8 @@ public class CheckinFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 ma.WriteToBTDevice("Send a reward here.");
+                ma.send_location(idnum);
+
             }
         });
 
