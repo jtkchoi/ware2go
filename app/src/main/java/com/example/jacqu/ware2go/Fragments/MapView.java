@@ -28,6 +28,7 @@ import com.google.android.gms.maps.model.PolygonOptions;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by jacqu on 3/2/2017.
@@ -51,7 +52,7 @@ public class MapView extends SupportMapFragment implements GoogleApiClient.Conne
     private int curMapTypeIndex = 1;
 
     private Location location = new Location("");
-    private ArrayList<Location> allLoc = new ArrayList<>();
+    private HashMap<Location, Integer> allLoc = new HashMap<>();
     private ArrayList<Marker> allMarker = new ArrayList<>();
     private float z = 16f;
     private Marker loc;
@@ -113,7 +114,7 @@ public class MapView extends SupportMapFragment implements GoogleApiClient.Conne
             Location temp = new Location("USER");
             temp.setLatitude(lat);
             temp.setLongitude(longt);
-            allLoc.add(temp);
+            allLoc.put(temp, 1);
 
             allMarker.add(getMap().addMarker(new MarkerOptions()
                     .position(new LatLng(temp.getLatitude() + (1.0 - Math.random()*2)/1000, temp.getLongitude() + (1.0 - Math.random()*2)/1000))
@@ -122,6 +123,23 @@ public class MapView extends SupportMapFragment implements GoogleApiClient.Conne
                     );
         }
     }
+
+    /*
+    private void setMarkers(){
+        for(int i = 0; i < 5; i++){
+            Location temp = new Location("USER");
+            temp.setLatitude(lat);
+            temp.setLongitude(longt);
+            allLoc.put(temp, 1);
+
+            allMarker.add(getMap().addMarker(new MarkerOptions()
+                    .position(new LatLng(temp.getLatitude() + (1.0 - Math.random()*2)/1000, temp.getLongitude() + (1.0 - Math.random()*2)/1000))
+                    .title("User " + i)
+                    .visible(false))
+            );
+        }
+    }
+    */
 
     @Override
     public void onStop() {
