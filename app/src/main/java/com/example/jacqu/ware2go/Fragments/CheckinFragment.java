@@ -2,6 +2,7 @@ package com.example.jacqu.ware2go.Fragments;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +18,7 @@ import com.example.jacqu.ware2go.R;
  */
 
 public class CheckinFragment extends Fragment {
+    String pid;
 
     @Override
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
@@ -41,6 +43,8 @@ public class CheckinFragment extends Fragment {
                 myListView.setVisibility(View.VISIBLE);
                 myButton.setVisibility(View.INVISIBLE);
                 ma.connectFromListView(position);
+                pid = ma.ReadFromBTDevice();
+                Log.d("Got from BT: ", pid);
             }
         });
         /*ArrayAdatper<String> myPairedArrayAdapter = new ArrayAdapter<String>(this.getActivity(), android.R.layout.simple_list_item_1);

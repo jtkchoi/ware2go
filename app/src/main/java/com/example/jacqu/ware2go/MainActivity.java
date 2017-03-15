@@ -241,6 +241,7 @@ public class MainActivity extends AppCompatActivity
     }
 
 
+
     final BroadcastReceiver bReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
