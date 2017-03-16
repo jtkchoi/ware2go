@@ -298,7 +298,7 @@ public class MainActivity extends AppCompatActivity
         // Get a Bluetooth Socket to connect with the given BluetoothDevice
         try {
             // MY_UUID is the app's UUID string, also used by the server code
-            mmSocket = device.createRfcommSocketToServiceRecord(MY_UUID);
+                mmSocket = device.createRfcommSocketToServiceRecord(MY_UUID);
         } catch (IOException e) {
             Toast.makeText(context, "Socket Creation Failed", Toast.LENGTH_LONG).show();
         }
@@ -389,7 +389,9 @@ public class MainActivity extends AppCompatActivity
     {
         byte c ;
         String s = "";
-
+        if(mmSocket == null){
+            return s;
+        }
         try { // Read from the InputStream using polling and timeout
             for(int i = 0; i < 1000; i ++) { // try to read for 2 seconds max
                 SystemClock.sleep (10);
@@ -408,6 +410,10 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
-//        unregisterReceiver(bReceiver);
+        try {
+            unregisterReceiver(bReceiver);
+        } catch (NullPointerException e) {
+            Log.v(TAG, "Already unregistered");
+        }
     }
 }
