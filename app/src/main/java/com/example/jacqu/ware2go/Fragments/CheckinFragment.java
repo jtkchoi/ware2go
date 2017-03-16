@@ -34,12 +34,9 @@ public class CheckinFragment extends Fragment {
         final ListView myListView = (ListView) view.findViewById(R.id.pickdevice);
         final Button myButton = (Button) view.findViewById(R.id.visit);
 
-
         ((MainActivity) this.getActivity()).listBt(view);
 
         final MainActivity ma = (MainActivity) this.getActivity();
-
-
         TextView tv1 = new TextView(this.getContext());
         tv1.setText("Select your device and press broadcast.");
         myListView.addHeaderView(tv1);
@@ -49,11 +46,7 @@ public class CheckinFragment extends Fragment {
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
 
-                myListView.setVisibility(View.INVISIBLE);
-                myButton.setVisibility(View.VISIBLE);
                 ma.connectFromListView(position-1);
-
-
             }
         });
         /*ArrayAdatper<String> myPairedArrayAdapter = new ArrayAdapter<String>(this.getActivity(), android.R.layout.simple_list_item_1);
@@ -64,11 +57,6 @@ public class CheckinFragment extends Fragment {
             public void onClick(View view) {
                 pid = ma.ReadFromBTDevice();
                 idnum = pid.replaceAll("[^0-9]", "");
-                try {
-                    wait(200);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
                 ma.WriteToBTDevice("Send a reward here.");
                 ma.send_location(idnum);
             }

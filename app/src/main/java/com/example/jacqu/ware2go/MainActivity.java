@@ -339,6 +339,9 @@ public class MainActivity extends AppCompatActivity
         try {
             // Attempt connection to the device through the socket.
             mmSocket.connect();
+            ((MainActivity)this.context).findViewById(R.id.pickdevice).setVisibility(View.INVISIBLE);
+            ((MainActivity)this.context).findViewById(R.id.visit).setVisibility(View.VISIBLE);
+
             Toast.makeText(context, "Connection Made", Toast.LENGTH_LONG).show();
         }
         catch (IOException connectException) {
@@ -402,6 +405,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unregisterReceiver(bReceiver);
+//        unregisterReceiver(bReceiver);
     }
 }
