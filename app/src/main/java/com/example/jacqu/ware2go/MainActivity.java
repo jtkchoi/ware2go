@@ -29,11 +29,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
-import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
 import com.example.jacqu.ware2go.Fragments.CheckinFragment;
 import com.example.jacqu.ware2go.Fragments.MapFragment;
 import com.google.android.gms.maps.model.LatLng;
@@ -145,8 +143,6 @@ public class MainActivity extends AppCompatActivity
             fragment = new MapFragment();
         } else if (id == R.id.nav_checkin) {
             fragment = new CheckinFragment();
-        //    Intent intent = new Intent(this, )
-            // startActivity(intent);
         }else if (id == R.id.nav_assist) {
             fragment = null;
         }
@@ -169,9 +165,6 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void send_location(final String id) {
-
-        RequestQueue queue = Volley.newRequestQueue(this);
-
         final TextView tv = (TextView) this.findViewById(R.id.server_msg);
         String url = "http://192.168.43.72:3000/visited";
         StringRequest postRequest = new StringRequest(Request.Method.POST, url,
@@ -205,7 +198,7 @@ public class MainActivity extends AppCompatActivity
                 return params;
             }
         };
-        queue.add(postRequest);
+        ApplicationController.getInstance().addToRequestQueue(postRequest);
     }
 
     public void btOn(View view){
@@ -411,7 +404,9 @@ public class MainActivity extends AppCompatActivity
     protected void onDestroy() {
         super.onDestroy();
         try {
-            unregisterReceiver(bReceiver);
+            if(bReceiver != null) {
+                unregisterReceiver(bReceiver);
+            }
         } catch (NullPointerException e) {
             Log.v(TAG, "Already unregistered");
         }
