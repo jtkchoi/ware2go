@@ -145,6 +145,8 @@ public class MainActivity extends AppCompatActivity
             fragment = new MapFragment();
         } else if (id == R.id.nav_checkin) {
             fragment = new CheckinFragment();
+        //    Intent intent = new Intent(this, )
+            // startActivity(intent);
         }else if (id == R.id.nav_assist) {
             fragment = null;
         }
@@ -165,6 +167,7 @@ public class MainActivity extends AppCompatActivity
         //TODO: FILL IN THIS FUNCTION TO GET LOCATIONS FROM SERVER
         return null;
     }
+
     public void send_location(final String id) {
 
         RequestQueue queue = Volley.newRequestQueue(this);
