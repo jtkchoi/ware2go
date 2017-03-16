@@ -36,6 +36,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.jacqu.ware2go.Fragments.CheckinFragment;
 import com.example.jacqu.ware2go.Fragments.MapFragment;
+import com.google.android.gms.maps.model.LatLng;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -125,7 +126,7 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_switchuser) {
+        if (id == R.id.action_changelocation) {
             return true;
         }
 
@@ -160,6 +161,10 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+    public HashMap<LatLng, Integer> get_locations(){
+        //TODO: FILL IN THIS FUNCTION TO GET LOCATIONS FROM SERVER
+        return null;
+    }
     public void send_location(final String id) {
 
         RequestQueue queue = Volley.newRequestQueue(this);

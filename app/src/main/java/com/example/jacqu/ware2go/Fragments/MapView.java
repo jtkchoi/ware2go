@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ToggleButton;
 
+import com.example.jacqu.ware2go.MainActivity;
 import com.example.jacqu.ware2go.R;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -52,7 +53,7 @@ public class MapView extends SupportMapFragment implements GoogleApiClient.Conne
     private int curMapTypeIndex = 1;
 
     private Location location = new Location("");
-    private HashMap<Location, Integer> allLoc = new HashMap<>();
+    private HashMap<LatLng, Integer> allLoc = new HashMap<>();
     private ArrayList<Marker> allMarker = new ArrayList<>();
     private float z = 16f;
     private Marker loc;
@@ -106,40 +107,7 @@ public class MapView extends SupportMapFragment implements GoogleApiClient.Conne
                 .position(new LatLng(location.getLatitude(), location.getLongitude()))
                 .title("My Location")
                 .visible(false));
-
-        double lat = 49.2677982;
-        double longt = -123.2564914;
-
-        for(int i = 0; i < 5; i++){
-            Location temp = new Location("USER");
-            temp.setLatitude(lat);
-            temp.setLongitude(longt);
-            allLoc.put(temp, 1);
-
-            allMarker.add(getMap().addMarker(new MarkerOptions()
-                    .position(new LatLng(temp.getLatitude() + (1.0 - Math.random()*2)/1000, temp.getLongitude() + (1.0 - Math.random()*2)/1000))
-                    .title("User " + i)
-                    .visible(false))
-                    );
-        }
     }
-
-    /*
-    private void setMarkers(){
-        for(int i = 0; i < 5; i++){
-            Location temp = new Location("USER");
-            temp.setLatitude(lat);
-            temp.setLongitude(longt);
-            allLoc.put(temp, 1);
-
-            allMarker.add(getMap().addMarker(new MarkerOptions()
-                    .position(new LatLng(temp.getLatitude() + (1.0 - Math.random()*2)/1000, temp.getLongitude() + (1.0 - Math.random()*2)/1000))
-                    .title("User " + i)
-                    .visible(false))
-            );
-        }
-    }
-    */
 
     @Override
     public void onStop() {
@@ -332,10 +300,21 @@ public class MapView extends SupportMapFragment implements GoogleApiClient.Conne
             }
         });
 
+        final MainActivity ma = (MainActivity) this.getContext();
         final ToggleButton showAll = (ToggleButton) view.findViewById(R.id.showall);
         showAll.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
+                    allLoc = ma.get_locations();
+                    for(LatLng temp : allLoc.keySet()){
+                        float numPeople = allLoc.get(temp);
+                        allMarker.add(getMap().addMarker(new MarkerOptions()
+                                .position(temp)
+                                .title(allLoc.get(temp).toString())
+                                .alpha((float) Math.max(numPeople/50, 1.0))
+                                .visible(false))
+                        );
+                    }
                     for(Marker l : allMarker)
                         l.setVisible(true);
                 } else {

@@ -2,9 +2,7 @@ package com.example.jacqu.ware2go.Fragments;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -54,8 +52,6 @@ public class CheckinFragment extends Fragment {
                 myListView.setVisibility(View.INVISIBLE);
                 myButton.setVisibility(View.VISIBLE);
                 ma.connectFromListView(position-1);
-                pid = ma.ReadFromBTDevice();
-                idnum = pid.replaceAll("[^0-9]", "");
 
 
             }
@@ -66,9 +62,15 @@ public class CheckinFragment extends Fragment {
         myButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                pid = ma.ReadFromBTDevice();
+                idnum = pid.replaceAll("[^0-9]", "");
+                try {
+                    wait(200);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 ma.WriteToBTDevice("Send a reward here.");
                 ma.send_location(idnum);
-
             }
         });
 

@@ -10,10 +10,6 @@
             android:id="@+id/nav_checkin"
             android:icon="@drawable/checkin"
             android:title="Check In" />
-        <item
-            android:id="@+id/nav_bt"
-            android:icon="@drawable/checkin"
-            android:title="View Bluetooth" />
     </group>
 
     <item android:title="Communicate">
