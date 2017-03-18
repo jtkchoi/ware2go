@@ -36,6 +36,9 @@ import com.example.jacqu.ware2go.Fragments.CheckinFragment;
 import com.example.jacqu.ware2go.Fragments.MapFragment;
 import com.google.android.gms.maps.model.LatLng;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -159,9 +162,36 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    public HashMap<LatLng, Integer> get_locations(){
+    public HashMap<LatLng, Integer> get_locations() {
         //TODO: FILL IN THIS FUNCTION TO GET LOCATIONS FROM SERVER
-        return null;
+
+        final HashMap<LatLng, Integer> map = new HashMap<LatLng, Integer>();
+        String url = "http://192.168.43.72:3000/locations";
+        StringRequest getRequest = new StringRequest(Request.Method.GET, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONArray jsonArray = new JSONArray(response);
+                            for (int i = 0; i < jsonArray.length(); i++) {
+                                JSONObject location = jsonArray.getJSONObject(i);
+                                LatLng coords = new LatLng(location.getDouble("latitude"), location.getDouble("longitude"));
+                                int id = location.getInt("id");
+                                map.put(coords, id);
+                            }
+                            System.out.println(map);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("Error", error.toString());
+            }
+        });
+        ApplicationController.getInstance().addToRequestQueue(getRequest);
+        return map;
     }
 
     public void send_location(final String id) {
