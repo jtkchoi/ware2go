@@ -33,7 +33,7 @@
 
             android:layout_width="match_parent"
             android:textOff="Show All Users"
-            android:textOn="Hide All Useres"
+            android:textOn="Hide All Users"
             android:textSize="12dp"
             android:textAllCaps="false" />
     </RelativeLayout>

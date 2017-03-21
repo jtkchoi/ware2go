@@ -11,6 +11,7 @@ import android.widget.ToggleButton;
 
 import com.example.jacqu.ware2go.MainActivity;
 import com.example.jacqu.ware2go.R;
+import com.example.jacqu.ware2go.VolleyCallback;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
@@ -305,24 +306,30 @@ public class MapView extends SupportMapFragment implements GoogleApiClient.Conne
         showAll.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    allLoc = ma.get_locations();
-                    for(LatLng temp : allLoc.keySet()){
-                        float numPeople = allLoc.get(temp);
-                        allMarker.add(getMap().addMarker(new MarkerOptions()
-                                .position(temp)
-                                .title(allLoc.get(temp).toString())
-                                .alpha((float) Math.max(numPeople/50, 1.0))
-                                .visible(false))
-                        );
-                    }
-                    for(Marker l : allMarker)
-                        l.setVisible(true);
-                } else {
-                    for(Marker l : allMarker)
-                        l.setVisible(false);
+                    ma.get_locations(new VolleyCallback() {
+                        @Override
+                        public void onSuccessResponse(Object result) {
+                            allLoc = (HashMap<LatLng, Integer>) result;
+                            for(LatLng temp : allLoc.keySet()){
+                                float numPeople = allLoc.get(temp);
+                                allMarker.add(getMap().addMarker(new MarkerOptions()
+                                        .position(temp)
+                                        .title(allLoc.get(temp).toString())
+                                        .alpha((float) Math.max(numPeople/50, 1.0))
+                                        .visible(false))
+                                );
+                            }
+                            for(Marker l : allMarker)
+                                l.setVisible(true);
+                        }
+                    });
                 }
-            }
-        });
+                else {
+                            for(Marker l : allMarker)
+                                l.setVisible(false);
+                    }
+                }
+            });
     }
 
 }

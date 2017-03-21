@@ -6,12 +6,14 @@ import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -25,6 +27,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,6 +35,7 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
+import com.example.jacqu.ware2go.Fragments.AssistanceFragment;
 import com.example.jacqu.ware2go.Fragments.CheckinFragment;
 import com.example.jacqu.ware2go.Fragments.MapFragment;
 import com.google.android.gms.maps.model.LatLng;
@@ -66,7 +70,8 @@ public class MainActivity extends AppCompatActivity
     public static InputStream mmInStream = null;
     public static OutputStream mmOutStream = null;
     private boolean Connected = false;
-
+    public static final String PREFS_NAME = "MyPrefsFile";
+    int bldgID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,15 +105,27 @@ public class MainActivity extends AppCompatActivity
         ft.replace(R.id.mainFrame, new MapFragment());
         ft.commit();
 
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+        bldgID = settings.getInt("bldgID", 0);
     }
 
     @Override
     public void onBackPressed() {
+        FragmentManager fm = getSupportFragmentManager();
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
+        }
+        else if( fm.getBackStackEntryCount() != 0){
+            fm.popBackStack();
+        }
+        else {
+            if(currFragment != R.id.nav_map) {
+                currFragment = R.id.nav_map;
+                FragmentTransaction ft = fm.beginTransaction();
+                ft.replace(R.id.mainFrame, new MapFragment());
+                ft.commit();
+            }
         }
     }
 
@@ -125,15 +142,27 @@ public class MainActivity extends AppCompatActivity
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
         //noinspection SimplifiableIfStatement
+        View menuItemView = findViewById(R.id.mainFrame);
         if (id == R.id.action_changelocation) {
-            return true;
+            PopupMenu popup = new PopupMenu(this, menuItemView);
+            // This activity implements OnMenuItemClickListener
+            popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem menuItem) {
+                    bldgID = menuItem.getItemId();
+                    return true;
+                }
+            });
+            popup.inflate(R.menu.changelocation);
+
+            popup.show();
         }
 
-        return super.onOptionsItemSelected(item);
+        return false;
     }
 
+    int currFragment = R.id.nav_map;
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
@@ -143,11 +172,14 @@ public class MainActivity extends AppCompatActivity
         Fragment fragment = null;
 
         if (id == R.id.nav_map) {
+            currFragment = R.id.nav_map;
             fragment = new MapFragment();
         } else if (id == R.id.nav_checkin) {
+            currFragment = R.id.nav_checkin;
             fragment = new CheckinFragment();
         }else if (id == R.id.nav_assist) {
-            fragment = null;
+            currFragment = R.id.nav_assist;
+            fragment = new AssistanceFragment();
         }
 
         //NOTE: Fragment changing code
@@ -162,9 +194,7 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    public HashMap<LatLng, Integer> get_locations() {
-        //TODO: FILL IN THIS FUNCTION TO GET LOCATIONS FROM SERVER
-
+    public void get_locations(final VolleyCallback callback) {
         final HashMap<LatLng, Integer> map = new HashMap<LatLng, Integer>();
         String url = "http://192.168.43.72:3000/locations";
         StringRequest getRequest = new StringRequest(Request.Method.GET, url,
@@ -180,6 +210,7 @@ public class MainActivity extends AppCompatActivity
                                 map.put(coords, id);
                             }
                             System.out.println(map);
+                            callback.onSuccessResponse(map);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -191,7 +222,29 @@ public class MainActivity extends AppCompatActivity
             }
         });
         ApplicationController.getInstance().addToRequestQueue(getRequest);
-        return map;
+    }
+
+    public void get_users(final VolleyCallback callback) {
+        //TODO: fill function
+        String url = "http://192.168.43.72:3000/assistances";
+        StringRequest getRequest = new StringRequest(Request.Method.GET, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONArray jsonArray = new JSONArray(response);
+                            callback.onSuccessResponse(jsonArray);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("Error", error.toString());
+            }
+        });
+        ApplicationController.getInstance().addToRequestQueue(getRequest);
     }
 
     public void send_location(final String id) {
@@ -223,7 +276,7 @@ public class MainActivity extends AppCompatActivity
             {
                 Map<String, String>  params = new HashMap<>();
                 params.put("user_id", id);
-                params.put("location_id", "1");
+                params.put("location_id", ((Integer) bldgID).toString());
 
                 return params;
             }
@@ -440,5 +493,19 @@ public class MainActivity extends AppCompatActivity
         } catch (NullPointerException e) {
             Log.v(TAG, "Already unregistered");
         }
+    }
+
+    @Override
+    protected void onStop(){
+        super.onStop();
+
+        // We need an Editor object to make preference changes.
+        // All objects are from android.context.Context
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putInt("bldgID", bldgID);
+
+        // Commit the edits!
+        editor.commit();
     }
 }
