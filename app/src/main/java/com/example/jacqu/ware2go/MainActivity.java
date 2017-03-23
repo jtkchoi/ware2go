@@ -9,9 +9,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.SystemClock;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -40,6 +38,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.example.jacqu.ware2go.Fragments.AssistanceFragment;
 import com.example.jacqu.ware2go.Fragments.CheckinFragment;
 import com.example.jacqu.ware2go.Fragments.MapFragment;
+import com.google.android.gms.maps.model.LatLng;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -75,7 +74,7 @@ public class MainActivity extends AppCompatActivity
     private boolean Connected = false;
     public static final String PREFS_NAME = "MyPrefsFile";
     private JSONArray bldgInfo = null;
-    private
+    private LatLng curLocation = null;
     int bldgID;
 
     @Override
@@ -85,6 +84,7 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        /*
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -93,6 +93,7 @@ public class MainActivity extends AppCompatActivity
                         .setAction("Action", null).show();
             }
         });
+        */
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -114,11 +115,24 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onSuccessResponse(Object result) {
                bldgInfo = (JSONArray) result;
+                try {
+                    curLocation = new LatLng(
+                            bldgInfo.getJSONObject(bldgID).getDouble("latitude"),
+                            bldgInfo.getJSONObject(bldgID).getDouble("longtitude")
+                    );
+                }
+                catch (Exception JSONException){
+                    curLocation = new LatLng(0,0);
+                }
             }
         });
 
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
         bldgID = settings.getInt("bldgID", 0);
+    }
+
+    public LatLng getCurLocation(){
+        return curLocation;
     }
 
     @Override
@@ -164,10 +178,41 @@ public class MainActivity extends AppCompatActivity
             ListView lv = new ListView(this.context);
             ArrayAdapter<String> lvBldgs = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_activated_1);
 
+            //Just for when server is off
+            if(bldgInfo == null) {
+                lvBldgs.add("1");
+                lvBldgs.add("2");
+                lvBldgs.add("3");
+                lvBldgs.add("4");
+                lv.setAdapter(lvBldgs);
+                lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    public void onItemClick(AdapterView<?> parent, View view,
+                                            int position, long id) {
+                        try {
+                            bldgID = bldgInfo.getJSONObject(position).getInt("id");
+                            curLocation = new LatLng(
+                                    bldgInfo.getJSONObject(bldgID).getDouble("latitude"),
+                                    bldgInfo.getJSONObject(bldgID).getDouble("longitude")
+                            );
+                        }
+                        catch (Exception JSONException){
+                            curLocation = new LatLng(0,0);
+                            bldgID = 0;
+                        }
+
+                        popup.dismiss();
+                    }
+                });
+                frame.addView(lv);
+                popup.setFocusable(true);
+                popup.setContentView(frame);
+                popup.showAtLocation(this.getCurrentFocus(), CENTER, 40, 200);
+                return false;
+            }
+
             for(int i = 0; i < bldgInfo.length(); i++){
                 JSONObject t;
                 String bldgname;
-                int tID;
                 try {
                     t = bldgInfo.getJSONObject(i);
                     bldgname = t.getString("name");
@@ -177,14 +222,21 @@ public class MainActivity extends AppCompatActivity
                 }
                 lvBldgs.add(bldgname);
             }
+
+
             lv.setAdapter(lvBldgs);
             lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 public void onItemClick(AdapterView<?> parent, View view,
                                         int position, long id) {
                     try {
                         bldgID = bldgInfo.getJSONObject(position).getInt("id");
+                        curLocation = new LatLng(
+                                    bldgInfo.getJSONObject(bldgID).getDouble("latitude"),
+                                    bldgInfo.getJSONObject(bldgID).getDouble("longitude")
+                            );
                     }
                     catch (Exception JSONException){
+                        curLocation = new LatLng(0,0);
                         bldgID = 0;
                     }
 
@@ -194,7 +246,7 @@ public class MainActivity extends AppCompatActivity
             frame.addView(lv);
             popup.setFocusable(true);
             popup.setContentView(frame);
-            popup.showAtLocation(this.getCurrentFocus(), CENTER, 60, 200);
+            popup.showAtLocation(this.getCurrentFocus(), CENTER, 40, 200);
 
         }
 

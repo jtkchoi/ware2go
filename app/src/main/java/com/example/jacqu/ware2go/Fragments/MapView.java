@@ -53,7 +53,7 @@ public class MapView extends SupportMapFragment implements GoogleApiClient.Conne
             GoogleMap.MAP_TYPE_NONE };
     private int curMapTypeIndex = 1;
 
-    private Location location = new Location("");
+    private LatLng location;
     private HashMap<LatLng, Integer> allLoc = new HashMap<>();
     private ArrayList<Marker> allMarker = new ArrayList<>();
     private float z = 16f;
@@ -102,10 +102,12 @@ public class MapView extends SupportMapFragment implements GoogleApiClient.Conne
         initButtons(this.getView().getRootView());
         mGoogleApiClient.connect();
 
-        location.setLatitude(49.2677982);
-        location.setLongitude(-123.2564914);
+        location = ((MainActivity) this.getActivity()).getCurLocation();
+        if(location == null)
+            location = new LatLng(49.2677982, -123.2564914);
+
         loc = getMap().addMarker(new MarkerOptions()
-                .position(new LatLng(location.getLatitude(), location.getLongitude()))
+                .position(location)
                 .title("My Location")
                 .visible(false));
     }
@@ -122,7 +124,10 @@ public class MapView extends SupportMapFragment implements GoogleApiClient.Conne
     @Override
     public void onConnected(Bundle bundle) {
 
-        initCamera( location );
+        Location l = new Location("");
+        l.setLatitude(location.latitude);
+        l.setLongitude(location.longitude);
+        initCamera( l );
 
     }
 
@@ -256,6 +261,18 @@ public class MapView extends SupportMapFragment implements GoogleApiClient.Conne
         getMap().setMapType( MAP_TYPES[curMapTypeIndex] );
     }
 
+    public void drawLocation(){
+        location = ((MainActivity) this.getActivity()).getCurLocation();
+        if(location ==  null)
+            return;
+
+        loc = getMap().addMarker(new MarkerOptions()
+                .position(location)
+                .title("My Location")
+                .visible(true));
+        drawCircle(location);
+    }
+
     public void initButtons(View view){
         final Button normalButton = (Button) view.findViewById(R.id.normal);
 
@@ -294,8 +311,9 @@ public class MapView extends SupportMapFragment implements GoogleApiClient.Conne
         showLoc.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    loc.setVisible(true);
+                    drawLocation();
                 } else {
+                    prevCircle.remove();
                     loc.setVisible(false);
                 }
             }
