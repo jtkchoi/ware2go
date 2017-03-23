@@ -24,10 +24,12 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.PopupMenu;
+import android.widget.PopupWindow;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,7 +40,6 @@ import com.android.volley.toolbox.StringRequest;
 import com.example.jacqu.ware2go.Fragments.AssistanceFragment;
 import com.example.jacqu.ware2go.Fragments.CheckinFragment;
 import com.example.jacqu.ware2go.Fragments.MapFragment;
-import com.google.android.gms.maps.model.LatLng;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -51,6 +52,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+
+import static android.view.Gravity.CENTER;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -71,6 +74,8 @@ public class MainActivity extends AppCompatActivity
     public static OutputStream mmOutStream = null;
     private boolean Connected = false;
     public static final String PREFS_NAME = "MyPrefsFile";
+    private JSONArray bldgInfo = null;
+    private
     int bldgID;
 
     @Override
@@ -104,6 +109,13 @@ public class MainActivity extends AppCompatActivity
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.mainFrame, new MapFragment());
         ft.commit();
+
+        get_locations(new VolleyCallback() {
+            @Override
+            public void onSuccessResponse(Object result) {
+               bldgInfo = (JSONArray) result;
+            }
+        });
 
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
         bldgID = settings.getInt("bldgID", 0);
@@ -145,18 +157,45 @@ public class MainActivity extends AppCompatActivity
         //noinspection SimplifiableIfStatement
         View menuItemView = findViewById(R.id.mainFrame);
         if (id == R.id.action_changelocation) {
-            PopupMenu popup = new PopupMenu(this, menuItemView);
-            // This activity implements OnMenuItemClickListener
-            popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                @Override
-                public boolean onMenuItemClick(MenuItem menuItem) {
-                    bldgID = menuItem.getItemId();
-                    return true;
+
+            final PopupWindow popup = new PopupWindow(this);
+            RelativeLayout frame = new RelativeLayout(this);
+            frame.setBackgroundColor(0xFFFFFFF);
+            ListView lv = new ListView(this.context);
+            ArrayAdapter<String> lvBldgs = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_activated_1);
+
+            for(int i = 0; i < bldgInfo.length(); i++){
+                JSONObject t;
+                String bldgname;
+                int tID;
+                try {
+                    t = bldgInfo.getJSONObject(i);
+                    bldgname = t.getString("name");
+                }
+                catch (Exception JSONException){
+                    break;
+                }
+                lvBldgs.add(bldgname);
+            }
+            lv.setAdapter(lvBldgs);
+            lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                public void onItemClick(AdapterView<?> parent, View view,
+                                        int position, long id) {
+                    try {
+                        bldgID = bldgInfo.getJSONObject(position).getInt("id");
+                    }
+                    catch (Exception JSONException){
+                        bldgID = 0;
+                    }
+
+                    popup.dismiss();
                 }
             });
-            popup.inflate(R.menu.changelocation);
+            frame.addView(lv);
+            popup.setFocusable(true);
+            popup.setContentView(frame);
+            popup.showAtLocation(this.getCurrentFocus(), CENTER, 60, 200);
 
-            popup.show();
         }
 
         return false;
@@ -195,7 +234,6 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void get_locations(final VolleyCallback callback) {
-        final HashMap<LatLng, Integer> map = new HashMap<LatLng, Integer>();
         String url = "http://192.168.43.72:3000/locations";
         StringRequest getRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
@@ -203,14 +241,7 @@ public class MainActivity extends AppCompatActivity
                     public void onResponse(String response) {
                         try {
                             JSONArray jsonArray = new JSONArray(response);
-                            for (int i = 0; i < jsonArray.length(); i++) {
-                                JSONObject location = jsonArray.getJSONObject(i);
-                                LatLng coords = new LatLng(location.getDouble("latitude"), location.getDouble("longitude"));
-                                int id = location.getInt("id");
-                                map.put(coords, id);
-                            }
-                            System.out.println(map);
-                            callback.onSuccessResponse(map);
+                            callback.onSuccessResponse(jsonArray);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -227,6 +258,29 @@ public class MainActivity extends AppCompatActivity
     public void get_users(final VolleyCallback callback) {
         //TODO: fill function
         String url = "http://192.168.43.72:3000/assistances";
+        StringRequest getRequest = new StringRequest(Request.Method.GET, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONArray jsonArray = new JSONArray(response);
+                            callback.onSuccessResponse(jsonArray);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("Error", error.toString());
+            }
+        });
+        ApplicationController.getInstance().addToRequestQueue(getRequest);
+    }
+
+    public void get_buildings(final VolleyCallback callback) {
+        //TODO: fill function
+        String url = "http://192.168.43.72:3000/locations";
         StringRequest getRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
                     @Override
