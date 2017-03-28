@@ -28,6 +28,9 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolygonOptions;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -327,7 +330,21 @@ public class MapView extends SupportMapFragment implements GoogleApiClient.Conne
                     ma.get_locations(new VolleyCallback() {
                         @Override
                         public void onSuccessResponse(Object result) {
-                            allLoc = (HashMap<LatLng, Integer>) result;
+
+                            JSONArray t = (JSONArray) result;
+                            HashMap<LatLng, Integer> map = new HashMap<LatLng, Integer>();
+
+                            for(int i = 0; i < t.length(); i++) {
+                                try {
+                                    JSONObject o = t.getJSONObject(i);
+                                    map.put(new LatLng(o.getDouble("latitude"), o.getDouble("longitude")), o.getInt("visited_num"));
+                                }
+                                catch (Exception JSONException){
+                                    break;
+                                }
+                            }
+
+                            allLoc = map;
                             for(LatLng temp : allLoc.keySet()){
                                 float numPeople = allLoc.get(temp);
                                 allMarker.add(getMap().addMarker(new MarkerOptions()

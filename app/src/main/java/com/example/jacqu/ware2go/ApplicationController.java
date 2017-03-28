@@ -96,4 +96,5 @@ public class ApplicationController extends Application {
             mRequestQueue.cancelAll(tag);
         }
     }
+
 }

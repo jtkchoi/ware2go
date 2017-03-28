@@ -7,6 +7,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.design.widget.NavigationView;
@@ -53,6 +55,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static android.view.Gravity.CENTER;
+import static android.view.Gravity.CENTER_HORIZONTAL;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -74,7 +77,8 @@ public class MainActivity extends AppCompatActivity
     private boolean Connected = false;
     public static final String PREFS_NAME = "MyPrefsFile";
     private JSONArray bldgInfo = null;
-    private LatLng curLocation = null;
+    private LatLng curLocation = new LatLng(49.2677982, -123.2564914);
+    private LatLng assistanceLocation = null;
     int bldgID;
 
     @Override
@@ -118,7 +122,7 @@ public class MainActivity extends AppCompatActivity
                 try {
                     curLocation = new LatLng(
                             bldgInfo.getJSONObject(bldgID).getDouble("latitude"),
-                            bldgInfo.getJSONObject(bldgID).getDouble("longtitude")
+                            bldgInfo.getJSONObject(bldgID).getDouble("longitude")
                     );
                 }
                 catch (Exception JSONException){
@@ -173,10 +177,12 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.action_changelocation) {
 
             final PopupWindow popup = new PopupWindow(this);
+            popup.setBackgroundDrawable(new ColorDrawable(Color.WHITE));
+            popup.setWidth(750);
+            popup.setHeight(750);
             RelativeLayout frame = new RelativeLayout(this);
-            frame.setBackgroundColor(0xFFFFFFF);
             ListView lv = new ListView(this.context);
-            ArrayAdapter<String> lvBldgs = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_activated_1);
+            ArrayAdapter<String> lvBldgs = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
 
             //Just for when server is off
             if(bldgInfo == null) {
@@ -206,7 +212,7 @@ public class MainActivity extends AppCompatActivity
                 frame.addView(lv);
                 popup.setFocusable(true);
                 popup.setContentView(frame);
-                popup.showAtLocation(this.getCurrentFocus(), CENTER, 40, 200);
+                popup.showAtLocation(this.getCurrentFocus(), CENTER, 0, 100);
                 return false;
             }
 
@@ -246,7 +252,7 @@ public class MainActivity extends AppCompatActivity
             frame.addView(lv);
             popup.setFocusable(true);
             popup.setContentView(frame);
-            popup.showAtLocation(this.getCurrentFocus(), CENTER, 40, 200);
+            popup.showAtLocation(this.getCurrentFocus(), CENTER_HORIZONTAL, 40, 200);
 
         }
 
@@ -388,6 +394,14 @@ public class MainActivity extends AppCompatActivity
             }
         };
         ApplicationController.getInstance().addToRequestQueue(postRequest);
+    }
+
+    public void setAssistanceLocation(LatLng loc){
+        this.assistanceLocation = loc;
+    }
+
+    public LatLng getAssistanceLocation(){
+        return this.assistanceLocation;
     }
 
     public void btOn(View view){
@@ -614,4 +628,7 @@ public class MainActivity extends AppCompatActivity
         // Commit the edits!
         editor.commit();
     }
+
 }
+
+
