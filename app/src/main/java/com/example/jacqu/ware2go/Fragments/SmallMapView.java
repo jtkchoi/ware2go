@@ -57,7 +57,6 @@ public class SmallMapView extends SupportMapFragment implements GoogleApiClient.
     private int curMapTypeIndex = 1;
 
     private int user_id;
-    private LatLng userLatLng = defaultLocation;
     private Location userLocation = new Location("");
     private LatLng curLocation = defaultLocation;
     Handler handler = new Handler();
@@ -123,6 +122,11 @@ public class SmallMapView extends SupportMapFragment implements GoogleApiClient.
         user_id = ma.getAssistanceUser();
         curLocation = ma.getCurLocation();
 
+        loc = getMap().addMarker(new MarkerOptions()
+                .position(curLocation)
+                .title("My Location")
+                .visible(true));
+
         if(user_id == -1){
             curLocation = defaultLocation;
             initCamera(userLocation);
@@ -143,19 +147,19 @@ public class SmallMapView extends SupportMapFragment implements GoogleApiClient.
             public void onSuccessResponse(Object result) {
                 JSONObject r = (JSONObject) result;
                 try {
-                    userLatLng = new LatLng(
-                            r.getDouble("latitude"),
-                            r.getDouble("longitude")
-                    );
+                    double lat = r.getDouble("latitude");
+                    double longt = r.getDouble("longitude");
+                    drawLocation(new LatLng(lat, longt));
+                    userLocation.setLatitude(lat);
+                    userLocation.setLongitude(longt);
                 }
                 catch (Exception JSONException){
-                    userLatLng = defaultLocation;
+                    userLocation.setLatitude(defaultLocation.latitude);
+                    userLocation.setLongitude(defaultLocation.longitude);
                 }
             }
         });
 
-        userLocation.setLatitude(userLatLng.latitude);
-        userLocation.setLongitude(userLatLng.longitude);
         initCamera( userLocation );
 
         handler.postDelayed(new Runnable() {
@@ -189,15 +193,11 @@ public class SmallMapView extends SupportMapFragment implements GoogleApiClient.
         ApplicationController.getInstance().addToRequestQueue(getRequest);
     }
 
-    public void drawLocation(){
-        if (loc != null) {
-            loc.setVisible(false);
-        }
-        loc = getMap().addMarker(new MarkerOptions()
-                .position(userLatLng)
-                .title("My Location")
-                .visible(true));
+    public void drawLocation(LatLng l){
+        loc.setPosition(l);
+        loc.setVisible(true);
     }
+
 
 
     public void resetLoc(MainActivity ma){
@@ -210,27 +210,29 @@ public class SmallMapView extends SupportMapFragment implements GoogleApiClient.
             public void onSuccessResponse(Object result) {
                 JSONObject r = (JSONObject) result;
                 try {
-                    userLatLng = new LatLng(
-                            r.getDouble("latitude"),
-                            r.getDouble("longitude")
-                    );
+                    double lat = r.getDouble("latitude");
+                    double longt = r.getDouble("longitude");
+                    drawLocation(new LatLng(lat, longt));
+                    userLocation.setLatitude(lat);
+                    userLocation.setLongitude(longt);
                 }
                 catch (Exception JSONException){
-                    userLatLng = defaultLocation;
+                    userLocation.setLatitude(defaultLocation.latitude);
+                    userLocation.setLongitude(defaultLocation.longitude);
                 }
             }
         });
-
-        drawLocation();
-        userLocation.setLatitude(userLatLng.latitude);
-        userLocation.setLongitude(userLatLng.longitude);
-        moveCamera( userLocation );
+        moveCamera( );
     }
 
-    private void moveCamera( Location location ) {
+    private void moveCamera( ) {
+        if(userLocation == null)
+            return;
 
-        this.getMap().moveCamera(CameraUpdateFactory.newLatLng(new LatLng( location.getLatitude(),
-                        location.getLongitude())));
+        this.getMap().moveCamera(CameraUpdateFactory.newLatLng(new LatLng( userLocation.getLatitude(),
+                        userLocation.getLongitude())));
+        drawCircle(new LatLng( userLocation.getLatitude(),
+                userLocation.getLongitude() ));
     }
 
     private void initCamera( Location location ) {
