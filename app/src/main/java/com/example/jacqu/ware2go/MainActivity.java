@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity
     public static final String PREFS_NAME = "MyPrefsFile";
     private JSONArray bldgInfo = null;
     private LatLng curLocation = new LatLng(49.2677982, -123.2564914);
-    private LatLng assistanceLocation = null;
+    private int curAssistanceID = -1;
     int bldgID;
 
     @Override
@@ -194,18 +194,6 @@ public class MainActivity extends AppCompatActivity
                 lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     public void onItemClick(AdapterView<?> parent, View view,
                                             int position, long id) {
-                        try {
-                            bldgID = bldgInfo.getJSONObject(position).getInt("id");
-                            curLocation = new LatLng(
-                                    bldgInfo.getJSONObject(bldgID).getDouble("latitude"),
-                                    bldgInfo.getJSONObject(bldgID).getDouble("longitude")
-                            );
-                        }
-                        catch (Exception JSONException){
-                            curLocation = new LatLng(0,0);
-                            bldgID = 0;
-                        }
-
                         popup.dismiss();
                     }
                 });
@@ -396,12 +384,12 @@ public class MainActivity extends AppCompatActivity
         ApplicationController.getInstance().addToRequestQueue(postRequest);
     }
 
-    public void setAssistanceLocation(LatLng loc){
-        this.assistanceLocation = loc;
+    public void setAssistanceUser(int assistanceID){
+        this.curAssistanceID = assistanceID;
     }
 
-    public LatLng getAssistanceLocation(){
-        return this.assistanceLocation;
+    public int getAssistanceUser(){
+        return this.curAssistanceID;
     }
 
     public void btOn(View view){

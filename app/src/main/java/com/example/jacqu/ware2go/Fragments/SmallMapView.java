@@ -3,10 +3,18 @@ package com.example.jacqu.ware2go.Fragments;
 import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.example.jacqu.ware2go.ApplicationController;
 import com.example.jacqu.ware2go.MainActivity;
 import com.example.jacqu.ware2go.R;
+import com.example.jacqu.ware2go.VolleyCallback;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
@@ -23,8 +31,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolygonOptions;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import org.json.JSONObject;
 
 /**
  * Created by jacqu on 3/2/2017.
@@ -45,14 +52,17 @@ public class SmallMapView extends SupportMapFragment implements GoogleApiClient.
             GoogleMap.MAP_TYPE_HYBRID,
             GoogleMap.MAP_TYPE_TERRAIN,
             GoogleMap.MAP_TYPE_NONE };
+    private final LatLng defaultLocation = new LatLng(49.2677982, -123.2564914);
+
     private int curMapTypeIndex = 1;
 
-    private LatLng location;
-    private LatLng curLocation;
-    private HashMap<LatLng, Integer> allLoc = new HashMap<>();
-    private ArrayList<Marker> allMarker = new ArrayList<>();
+    private int user_id;
+    private LatLng userLatLng = defaultLocation;
+    private Location userLocation = new Location("");
+    private LatLng curLocation = defaultLocation;
+    Handler handler = new Handler();
     private float z = 16f;
-    private Marker loc;
+    private Marker loc = null;
 
     @Override
     public void onConnectionSuspended(int i) {
@@ -95,16 +105,6 @@ public class SmallMapView extends SupportMapFragment implements GoogleApiClient.
     public void onStart() {
         super.onStart();
         mGoogleApiClient.connect();
-
-        location = ((MainActivity) this.getActivity()).getCurLocation();
-        if(location == null)
-            location = new LatLng(49.2677982, -123.2564914);
-
-        loc = getMap().addMarker(new MarkerOptions()
-                .position(location)
-                .title("My Location")
-                .visible(false));
-        drawLocation();
     }
 
     @Override
@@ -116,28 +116,121 @@ public class SmallMapView extends SupportMapFragment implements GoogleApiClient.
     }
 
 
+
     @Override
     public void onConnected(Bundle bundle) {
+        final MainActivity ma = (MainActivity) this.getActivity();
+        user_id = ma.getAssistanceUser();
+        curLocation = ma.getCurLocation();
 
-        curLocation = ((MainActivity) this.getActivity()).getCurLocation();
-        if(curLocation == null)
-            curLocation = new LatLng(49.2677982, -123.2564914);
-        if(location == null)
-            location = new LatLng(49.2677982, -123.2564914);
-        Location l = new Location("");
-        l.setLatitude(location.latitude);
-        l.setLongitude(location.longitude);
-        initCamera( l );
+        if(user_id == -1){
+            curLocation = defaultLocation;
+            initCamera(userLocation);
 
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    resetLoc(ma);
+                    handler.postDelayed(this, 2000);
+                }
+            },2000);
+
+            return;
+        }
+
+        getUserLocation(user_id, new VolleyCallback() {
+            @Override
+            public void onSuccessResponse(Object result) {
+                JSONObject r = (JSONObject) result;
+                try {
+                    userLatLng = new LatLng(
+                            r.getDouble("latitude"),
+                            r.getDouble("longitude")
+                    );
+                }
+                catch (Exception JSONException){
+                    userLatLng = defaultLocation;
+                }
+            }
+        });
+
+        userLocation.setLatitude(userLatLng.latitude);
+        userLocation.setLongitude(userLatLng.longitude);
+        initCamera( userLocation );
+
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                resetLoc(ma);
+                handler.postDelayed(this, 2000);
+            }
+        },2000);
+    }
+
+    public void getUserLocation(int user, final VolleyCallback callback) {
+        String url = "http://192.168.43.72:3000/assistance/" + user + "/location";
+        StringRequest getRequest = new StringRequest(Request.Method.GET, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONObject jsonObject = new JSONObject(response);
+                            callback.onSuccessResponse(jsonObject);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("Error", error.toString());
+            }
+        });
+        ApplicationController.getInstance().addToRequestQueue(getRequest);
+    }
+
+    public void drawLocation(){
+        if (loc != null) {
+            loc.setVisible(false);
+        }
+        loc = getMap().addMarker(new MarkerOptions()
+                .position(userLatLng)
+                .title("My Location")
+                .visible(true));
     }
 
 
-    public void resetLoc(){
+    public void resetLoc(MainActivity ma){
+        user_id = ma.getAssistanceUser();
+        if(user_id ==  -1)
+            return;
+
+        getUserLocation(user_id, new VolleyCallback() {
+            @Override
+            public void onSuccessResponse(Object result) {
+                JSONObject r = (JSONObject) result;
+                try {
+                    userLatLng = new LatLng(
+                            r.getDouble("latitude"),
+                            r.getDouble("longitude")
+                    );
+                }
+                catch (Exception JSONException){
+                    userLatLng = defaultLocation;
+                }
+            }
+        });
+
         drawLocation();
-        Location l = new Location("");
-        l.setLatitude(location.latitude);
-        l.setLongitude(location.longitude);
-        initCamera(l);
+        userLocation.setLatitude(userLatLng.latitude);
+        userLocation.setLongitude(userLatLng.longitude);
+        moveCamera( userLocation );
+    }
+
+    private void moveCamera( Location location ) {
+
+        this.getMap().moveCamera(CameraUpdateFactory.newLatLng(new LatLng( location.getLatitude(),
+                        location.getLongitude())));
     }
 
     private void initCamera( Location location ) {
@@ -222,15 +315,6 @@ public class SmallMapView extends SupportMapFragment implements GoogleApiClient.
         getMap().addGroundOverlay( options );
     }
 
-    public void drawLocation(){
-        location = ((MainActivity) this.getActivity()).getAssistanceLocation();
-        if(location ==  null)
-            return;
 
-        loc = getMap().addMarker(new MarkerOptions()
-                .position(location)
-                .title("My Location")
-                .visible(true));
-    }
 
 }

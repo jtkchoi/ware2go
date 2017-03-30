@@ -15,7 +15,6 @@ import android.widget.PopupWindow;
 import com.example.jacqu.ware2go.MainActivity;
 import com.example.jacqu.ware2go.R;
 import com.example.jacqu.ware2go.VolleyCallback;
-import com.google.android.gms.maps.model.LatLng;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -27,8 +26,6 @@ import static android.view.Gravity.CENTER;
  */
 
 public class AssistanceFragment extends Fragment {
-    String pid;
-    String idnum;
     View mapFrame;
     JSONArray users;
     PopupWindow popup;
@@ -54,7 +51,6 @@ public class AssistanceFragment extends Fragment {
         final ListView myListView = (ListView) view.findViewById(R.id.pick_user);
         final MainActivity ma = (MainActivity) this.getActivity();
         ArrayAdapter<String> userlist = new ArrayAdapter<String>(ma, android.R.layout.simple_list_item_1);
-        userlist.add("1");
         myListView.setAdapter(userlist);
 
         ma.get_users(new VolleyCallback() {
@@ -85,12 +81,11 @@ public class AssistanceFragment extends Fragment {
                                     int position, long id) {
 
                 try {
-                    ma.setAssistanceLocation(new LatLng(users.getJSONObject(position).getDouble("latitude"), users.getJSONObject(position).getDouble("longitude")));
+                    ma.setAssistanceUser(users.getJSONObject(position).getInt("user_id"));
                 } catch (Exception JSONException) {
-                    ma.setAssistanceLocation(new LatLng(0, 0));
+                    ma.setAssistanceUser(-1);
                 }
                 popup.showAtLocation(c, CENTER, 0, 200);
-
             }});
 
     }
