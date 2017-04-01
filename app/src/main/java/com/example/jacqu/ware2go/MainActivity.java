@@ -39,6 +39,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.example.jacqu.ware2go.Fragments.AssistanceFragment;
 import com.example.jacqu.ware2go.Fragments.CheckinFragment;
+import com.example.jacqu.ware2go.Fragments.JourneyFragment;
 import com.example.jacqu.ware2go.Fragments.MapFragment;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -49,7 +50,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -79,7 +83,16 @@ public class MainActivity extends AppCompatActivity
     private JSONArray bldgInfo = null;
     private LatLng curLocation = new LatLng(49.2677982, -123.2564914);
     private int curAssistanceID = -1;
+    private LinkedList<LatLng> journeyLatLng;
     int bldgID;
+
+    public LinkedList<LatLng> getJourneyLatLng() {
+        return journeyLatLng;
+    }
+
+    public void setJourneyLatLng(LinkedList<LatLng> journeyLatLng) {
+        this.journeyLatLng = journeyLatLng;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -265,8 +278,10 @@ public class MainActivity extends AppCompatActivity
         }else if (id == R.id.nav_assist) {
             currFragment = R.id.nav_assist;
             fragment = new AssistanceFragment();
+        }else if (id == R.id.GPS_Log) {
+            currFragment = R.id.GPS_Log;
+            fragment = new JourneyFragment();
         }
-
         //NOTE: Fragment changing code
         if (fragment != null) {
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
@@ -591,6 +606,124 @@ public class MainActivity extends AppCompatActivity
         }
         return "Something wrong";
     }
+
+
+    public String swapEndian(String args) {
+        if(args.length() % 2 != 0) return "";
+        char[] argsArray = args.toCharArray();
+        char[] newChar = new char[args.length()];
+        int i = 0;
+        int j = args.length()-2;
+        while(i < args.length() && j >= 0) {
+            newChar[i] = argsArray[j];
+            newChar[i+1] = argsArray[j+1];
+            i += 2;
+            j -= 2;
+        }
+        String swapArgs = new String(newChar);
+        return swapArgs;
+    }
+
+    public void processGpsLog(String gpslog){
+        String[] gpslines = gpslog.split("\r\n");
+        for(int i = 0; i < gpslines.length; i++){
+            // check if valid line
+            if (gpslines[i].contains("*")){
+                // break if last lines
+                if (gpslines[i].contains("PMTKLOX,2") || gpslines[i].contains("$PMTK001")) {
+                    break;
+
+                } else if (gpslines[i].contains("$PMTKLOX,1,")) { // check if its a valid gps log line
+                    // split by comma
+                    String[] linesplit = gpslines[i].split(",");
+
+                    if (gpslines[i].length() < 10){
+                        continue;
+                    }
+
+                    // pop off the first 3 elements
+                    ArrayList<String> stringArrayList = new ArrayList<String>(Arrays.asList(linesplit));
+                    stringArrayList.remove(0);
+                    stringArrayList.remove(0);
+                    stringArrayList.remove(0);
+
+                    // remove * from last element
+                    String lastelement = stringArrayList.get(stringArrayList.size()-1);
+                    stringArrayList.set(stringArrayList.size()-1, lastelement.split("\\*")[0]);
+
+                    // convert back to one string
+                    String lineString;
+                    if (stringArrayList.size() > 0) {
+                        StringBuilder sB = new StringBuilder();
+                        for (String n : stringArrayList) {
+                            sB.append(n);
+                        }
+                        lineString = sB.toString();
+                    } else {
+                        lineString = "";
+                    }
+
+                    // get length and verify divisble by 32
+                    int len = lineString.length();
+                    if (len % 32 != 0){
+                        System.out.println("bad line encountered");
+                        continue;
+                    }
+
+                    // cut line into 32 byte chunks
+                    int chunks = lineString.length() / 32;
+                    LinkedList<String> chunkList = new LinkedList<String>();
+
+                    for(int j = 0; j < chunks; j++){
+                        String chunk = lineString.substring(32 * j, 32 * (j + 1));
+                        chunkList.add(chunk);
+                    }
+
+                    // parse each chunk
+                    for (String chunk : chunkList){
+                        String timeString = chunk.substring(0, 8);
+                        String latString = chunk.substring(10, 18);
+                        String lonString = chunk.substring(18, 26);
+
+                        timeString = swapEndian(timeString);
+                        latString = swapEndian(latString);
+                        lonString = swapEndian(lonString);
+
+                        // gps will send zero values if no such data exists
+                        if ( !(timeString.equals("FFFFFFFF") || latString.equals("FFFFFFFF") || lonString.equals("FFFFFFFF")) ) {
+                            // parse time, lat, lon
+                            long timeint = 0;
+                            Date timedate = new Date();
+                            double latfloat = 0.0;
+                            double lonfloat = 0.0;
+                            boolean success = true;
+
+                            // exception means there was probably something wrong with the data so we just ignore it
+                            try {
+                                timeint = Long.parseLong(timeString, 16);
+                                latfloat = Float.intBitsToFloat((int)Long.parseLong(latString, 16));
+                                lonfloat = Float.intBitsToFloat((int)Long.parseLong(lonString, 16));
+                                timedate.setTime(timeint * 1000);
+                            } catch (Exception e) { // bad data
+                                success = false;
+                            }
+                            // good data
+                            if (success) {
+                                // print the data
+                                // TODO: more productive stuff with it
+                                if (timeint > 1300000000 && latfloat >= -180 && latfloat <= 180 && lonfloat >= -180 && lonfloat <= 180) {
+                                    Log.v("GPSLOGDATA:", "time: " + timeint + " timedate: " + timedate + " lat: " + latfloat + " lon: " + lonfloat);
+                                }
+                            }
+                        }
+
+                    }
+
+                }
+            }
+        }
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
