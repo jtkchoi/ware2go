@@ -39,6 +39,7 @@ public class CheckinFragment extends Fragment {
         TextView tv1 = new TextView(this.getContext());
         tv1.setText("Select your device and press broadcast.");
         myListView.addHeaderView(tv1);
+        myButton.setText("Check in to " + ma.getBldgName());
 
 
         myListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {

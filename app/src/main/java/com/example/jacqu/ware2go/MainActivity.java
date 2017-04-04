@@ -83,6 +83,7 @@ public class MainActivity extends AppCompatActivity
     private int curAssistanceID = -1;
     private LinkedList<LatLng> journeyLatLng;
     int bldgID;
+    String bldgName = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -124,10 +125,12 @@ public class MainActivity extends AppCompatActivity
             public void onSuccessResponse(Object result) {
                bldgInfo = (JSONArray) result;
                 try {
+                    JSONObject obj = bldgInfo.getJSONObject(bldgID);
                     curLocation = new LatLng(
-                            bldgInfo.getJSONObject(bldgID).getDouble("latitude"),
-                            bldgInfo.getJSONObject(bldgID).getDouble("longitude")
+                            obj.getDouble("latitude"),
+                            obj.getDouble("longitude")
                     );
+                    bldgName = obj.getString("name");
                 }
                 catch (Exception JSONException){
                     curLocation = new LatLng(0,0);
@@ -224,10 +227,12 @@ public class MainActivity extends AppCompatActivity
                                         int position, long id) {
                     try {
                         bldgID = bldgInfo.getJSONObject(position).getInt("id") - 1;
+                        JSONObject obj = bldgInfo.getJSONObject(bldgID);
                         curLocation = new LatLng(
-                                    bldgInfo.getJSONObject(bldgID).getDouble("latitude"),
-                                    bldgInfo.getJSONObject(bldgID).getDouble("longitude")
+                                    obj.getDouble("latitude"),
+                                    obj.getDouble("longitude")
                             );
+                        bldgName = obj.getString("name");
                     }
                     catch (Exception JSONException){
                         curLocation = new LatLng(0,0);
@@ -347,7 +352,7 @@ public class MainActivity extends AppCompatActivity
                     public void onResponse(String response) {
                         // response
                         Log.d("Response", response);
-                        Toast.makeText(getApplicationContext(), response.toString(), Toast.LENGTH_LONG).show();
+                        //Toast.makeText(getApplicationContext(), response.toString(), Toast.LENGTH_LONG).show();
                         tv.setText(response);
                         tv.setVisibility(View.VISIBLE);
                     }
@@ -373,6 +378,12 @@ public class MainActivity extends AppCompatActivity
         };
         ApplicationController.getInstance().addToRequestQueue(postRequest);
     }
+
+    /*
+     * getter for bldgName
+     */
+
+    public String getBldgName(){return bldgName;}
 
     /*
      * journeyLatLng getters and setters - used by JourneyMapView Fragment
