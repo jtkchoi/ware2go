@@ -123,7 +123,6 @@ public class MapView extends SupportMapFragment implements GoogleApiClient.Conne
         }
     }
 
-
     @Override
     public void onConnected(Bundle bundle) {
 
@@ -349,8 +348,8 @@ public class MapView extends SupportMapFragment implements GoogleApiClient.Conne
                                 float numPeople = allLoc.get(temp);
                                 allMarker.add(getMap().addMarker(new MarkerOptions()
                                         .position(temp)
-                                        .title(allLoc.get(temp).toString())
-                                        .alpha((float) Math.max(numPeople/1150, 1.0))
+                                        .title("Current # of People: " + allLoc.get(temp).toString())
+                                        .alpha((float) Math.max(numPeople/50, 1.0))
                                         .visible(false))
                                 );
                             }

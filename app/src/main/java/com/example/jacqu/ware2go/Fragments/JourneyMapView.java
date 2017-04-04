@@ -1,8 +1,6 @@
 package com.example.jacqu.ware2go.Fragments;
 
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.view.View;
@@ -15,7 +13,6 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
@@ -25,7 +22,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -162,38 +158,11 @@ public class JourneyMapView extends SupportMapFragment implements GoogleApiClien
 
     @Override
     public void onMapClick(LatLng latLng) {
-
-        MarkerOptions options = new MarkerOptions().position( latLng );
-        options.title( getAddressFromLatLng( latLng ) );
-
-        options.icon( BitmapDescriptorFactory.defaultMarker() );
-        // getMap().addMarker( options );
     }
 
     @Override
     public void onMapLongClick(LatLng latLng) {
-        MarkerOptions options = new MarkerOptions().position( latLng );
-        options.title( getAddressFromLatLng( latLng ) );
 
-        options.icon( BitmapDescriptorFactory.fromBitmap(
-                BitmapFactory.decodeResource( getResources(),
-                        R.mipmap.ic_launcher ) ) );
-
-        //getMap().addMarker( options );
-    }
-
-    private String getAddressFromLatLng( LatLng latLng ) {
-        Geocoder geocoder = new Geocoder( getActivity() );
-
-        String address = "";
-        try {
-            address = geocoder
-                    .getFromLocation( latLng.latitude, latLng.longitude, 1 )
-                    .get( 0 ).getAddressLine( 0 );
-        } catch (IOException e ) {
-        }
-
-        return address;
     }
 
     @Override

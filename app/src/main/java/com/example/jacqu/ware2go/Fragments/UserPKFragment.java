@@ -2,6 +2,7 @@ package com.example.jacqu.ware2go.Fragments;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,7 +10,7 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.util.Log;
+import android.widget.Toast;
 
 import com.example.jacqu.ware2go.MainActivity;
 import com.example.jacqu.ware2go.R;
@@ -52,10 +53,8 @@ public class UserPKFragment extends Fragment {
                                     int position, long id) {
 
                 ma.connectFromListView(position-1);
-                String curPK = "Something wrong";
-                for(int i = 0; curPK == "Something wrong" && i < 10; i++) {
-                    curPK = ma.ReadFromBTDevice();
-                }
+                String curPK = "8";
+
                 curpkfield.setText("Current ID: " + curPK);
                 if(ma.getConnected()) {
                     myListView.setVisibility(View.INVISIBLE);
@@ -72,6 +71,7 @@ public class UserPKFragment extends Fragment {
                 String userpktext = userpkfield.getText().toString();
                 Log.v(USERPKLOG, "Sending user pk " + userpktext);
                 ma.WriteToBTDevice("setuserpk," + userpktext);
+                Toast.makeText(ma, "User ID Sent!", Toast.LENGTH_LONG).show();
             }
         });
 

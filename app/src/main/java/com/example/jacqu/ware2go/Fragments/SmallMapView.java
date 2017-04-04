@@ -124,7 +124,7 @@ public class SmallMapView extends SupportMapFragment implements GoogleApiClient.
 
         loc = getMap().addMarker(new MarkerOptions()
                 .position(curLocation)
-                .title("My Location")
+                .title("User ID " + user_id)
                 .visible(true));
 
         if(user_id == -1){
@@ -194,6 +194,7 @@ public class SmallMapView extends SupportMapFragment implements GoogleApiClient.
     }
 
     public void drawLocation(LatLng l){
+        loc.setTitle("User ID " + user_id);
         loc.setPosition(l);
         loc.setVisible(true);
     }
@@ -212,9 +213,13 @@ public class SmallMapView extends SupportMapFragment implements GoogleApiClient.
                 try {
                     double lat = r.getDouble("latitude");
                     double longt = r.getDouble("longitude");
+
+                    if(lat != userLocation.getLatitude() || longt != userLocation.getLongitude()) {
+                        userLocation.setLatitude(lat);
+                        userLocation.setLongitude(longt);
+                        initCamera(userLocation);
+                    }
                     drawLocation(new LatLng(lat, longt));
-                    userLocation.setLatitude(lat);
-                    userLocation.setLongitude(longt);
                 }
                 catch (Exception JSONException){
                     userLocation.setLatitude(defaultLocation.latitude);
@@ -222,13 +227,12 @@ public class SmallMapView extends SupportMapFragment implements GoogleApiClient.
                 }
             }
         });
-        moveCamera( );
+
     }
 
     private void moveCamera( ) {
         if(userLocation == null)
             return;
-
         this.getMap().moveCamera(CameraUpdateFactory.newLatLng(new LatLng( userLocation.getLatitude(),
                         userLocation.getLongitude())));
         drawCircle(new LatLng( userLocation.getLatitude(),

@@ -5,8 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.example.jacqu.ware2go.MainActivity">
 
@@ -18,34 +16,39 @@
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"/>
 
-
     <TextView
         android:id="@+id/curuserpk"
         android:text=""
+        android:textSize="20dp"
         android:visibility="invisible"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"/>
+
+    <RelativeLayout
+        android:layout_below="@+id/curuserpk"
+        android:layout_width="300sp"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true">
 
     <EditText
         android:id="@+id/setuserpkfield"
-        android:layout_below="@+id/curuserpk"
         android:text="1"
+        android:textAlignment="center"
+        android:textSize="20dp"
         android:inputType="number"
         android:visibility="invisible"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"/>
+        android:layout_width="160sp"
+        android:layout_height="wrap_content"/>
 
     <Button
         android:id="@+id/senduserpk"
-        android:layout_below="@+id/setuserpkfield"
+        android:layout_toRightOf="@+id/setuserpkfield"
         android:visibility="invisible"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
         android:text="Change User ID"/>
+    </RelativeLayout>
 </RelativeLayout>

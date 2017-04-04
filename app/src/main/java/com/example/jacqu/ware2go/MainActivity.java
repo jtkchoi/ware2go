@@ -57,7 +57,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import static android.view.Gravity.CENTER;
 import static android.view.Gravity.CENTER_HORIZONTAL;
 
 public class MainActivity extends AppCompatActivity
@@ -85,14 +84,6 @@ public class MainActivity extends AppCompatActivity
     private LinkedList<LatLng> journeyLatLng;
     int bldgID;
 
-    public LinkedList<LatLng> getJourneyLatLng() {
-        return journeyLatLng;
-    }
-
-    public void setJourneyLatLng(LinkedList<LatLng> journeyLatLng) {
-        this.journeyLatLng = journeyLatLng;
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -100,6 +91,9 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        /*
+         * Initialize drawer menu
+         */
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -116,6 +110,15 @@ public class MainActivity extends AppCompatActivity
         ft.replace(R.id.mainFrame, new MapFragment());
         ft.commit();
 
+        /*
+         * Get previous bldgID from last open
+         */
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+        bldgID = settings.getInt("bldgID", 0);
+
+        /*
+         * Set the current location using the bldgId we just got
+         */
         get_locations(new VolleyCallback() {
             @Override
             public void onSuccessResponse(Object result) {
@@ -131,9 +134,6 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         });
-
-        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
-        bldgID = settings.getInt("bldgID", 0);
     }
 
     public LatLng getCurLocation(){
@@ -185,7 +185,7 @@ public class MainActivity extends AppCompatActivity
             ListView lv = new ListView(this.context);
             ArrayAdapter<String> lvBldgs = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
 
-            //Just for when server is off
+  /*        Just for when server is off
             if(bldgInfo == null) {
                 lvBldgs.add("1");
                 lvBldgs.add("2");
@@ -203,7 +203,7 @@ public class MainActivity extends AppCompatActivity
                 popup.setContentView(frame);
                 popup.showAtLocation(this.getCurrentFocus(), CENTER, 0, 100);
                 return false;
-            }
+            }*/
 
             for(int i = 0; i < bldgInfo.length(); i++){
                 JSONObject t;
@@ -223,7 +223,7 @@ public class MainActivity extends AppCompatActivity
                 public void onItemClick(AdapterView<?> parent, View view,
                                         int position, long id) {
                     try {
-                        bldgID = bldgInfo.getJSONObject(position).getInt("id");
+                        bldgID = bldgInfo.getJSONObject(position).getInt("id") - 1;
                         curLocation = new LatLng(
                                     bldgInfo.getJSONObject(bldgID).getDouble("latitude"),
                                     bldgInfo.getJSONObject(bldgID).getDouble("longitude")
@@ -284,6 +284,15 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+
+    /*
+     * Calls to server:
+     * get_locations
+     * get_users
+     * send_location
+     * Actual calls are made by the ApplicationController in background, as an async task
+     * VolleyCallback is used to return from function and handle success response
+     */
     public void get_locations(final VolleyCallback callback) {
         String url = "http://192.168.43.72:3000/locations";
         StringRequest getRequest = new StringRequest(Request.Method.GET, url,
@@ -365,6 +374,20 @@ public class MainActivity extends AppCompatActivity
         ApplicationController.getInstance().addToRequestQueue(postRequest);
     }
 
+    /*
+     * journeyLatLng getters and setters - used by JourneyMapView Fragment
+     */
+    public LinkedList<LatLng> getJourneyLatLng() {
+        return journeyLatLng;
+    }
+
+    public void setJourneyLatLng(LinkedList<LatLng> journeyLatLng) {
+        this.journeyLatLng = journeyLatLng;
+    }
+
+    /*
+     * curAssistanceID getter and setters - used by Assistance Fragment
+     */
     public void setAssistanceUser(int assistanceID){
         this.curAssistanceID = assistanceID;
     }
@@ -409,6 +432,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void connectFromListView( int index ){
+        if(index == -1){return;}
         BluetoothDevice btd = indexDevices.get(index);
         CreateSerialBluetoothDeviceSocket(btd);
         ConnectToSerialBlueToothDevice();
@@ -586,7 +610,12 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+
+
     @Override
+    /*
+     * When application exits, save the current building preference and restore when reopened
+     */
     protected void onStop(){
         super.onStop();
 
