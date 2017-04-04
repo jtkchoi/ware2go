@@ -132,6 +132,20 @@ public class JourneyMapView extends SupportMapFragment implements GoogleApiClien
         l.setLongitude(location.longitude);
         initCamera( l );
 
+        final MainActivity ma = (MainActivity) this.getActivity();
+
+        getMap().setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
+            @Override
+            public boolean onMyLocationButtonClick() {
+                Location l = new Location("");
+                location = ma.getCurLocation();
+                l.setLatitude(location.latitude);
+                l.setLongitude(location.longitude);
+                initCamera(l);
+                return true;
+            }
+        });
+
     }
 
 
