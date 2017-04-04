@@ -1,9 +1,9 @@
 package com.example.jacqu.ware2go.Fragments;
 
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,7 +11,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import com.example.jacqu.ware2go.MainActivity;
@@ -23,28 +22,20 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedList;
 
-import static android.view.Gravity.CENTER;
-
 /**
  * Created by Bo on 2017-03-30.
  */
 
 public class JourneyFragment extends Fragment {
     String pid;
-    View mapFrame;
-    PopupWindow popup;
-    ViewGroup c;
-    LayoutInflater li;
     LinkedList<LatLng> latLngList;
     static String JOURNEYMSG = "JOURNEYMSG";
 
     @Override
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
                              Bundle savedInstanceState) {
-        c = container;
-        li = inflater;
 
-        return inflater.inflate(R.layout.btcomms, container, false);
+        return inflater.inflate(R.layout.journey_init, container, false);
 
     }
 
@@ -121,16 +112,10 @@ public class JourneyFragment extends Fragment {
                 latLngList.add(new LatLng(49.266975, -123.257329));
 
                 ma.setJourneyLatLng(latLngList);
-
-                mapFrame = li.inflate(R.layout.map_journey, c, false);
-                popup = new PopupWindow(ma);
-                popup.setBackgroundDrawable(new ColorDrawable(Color.WHITE));
-                popup.setContentView(mapFrame);
-                popup.setWidth(1920);
-                popup.setHeight(1000);
-                popup.showAtLocation(c, CENTER, 0, 200);
-
-
+                FragmentManager fm = getFragmentManager();
+                FragmentTransaction ft = fm.beginTransaction();
+                ft.replace(R.id.mainFrame, new JourneyMapView());
+                ft.commit();
             }
         });
 
