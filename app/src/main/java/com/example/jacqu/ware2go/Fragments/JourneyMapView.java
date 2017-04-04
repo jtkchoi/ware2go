@@ -6,13 +6,9 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
-import android.widget.CompoundButton;
-import android.widget.ToggleButton;
 
 import com.example.jacqu.ware2go.MainActivity;
 import com.example.jacqu.ware2go.R;
-import com.example.jacqu.ware2go.VolleyCallback;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
@@ -23,16 +19,11 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
-import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -226,67 +217,6 @@ public class JourneyMapView extends SupportMapFragment implements GoogleApiClien
         options.strokeWidth( 3 );
 
         prevCircle = getMap().addCircle(options);
-    }
-
-    private void drawPolygon( LatLng startingLocation ) {
-        LatLng point2 = new LatLng( startingLocation.latitude + .001,
-                startingLocation.longitude );
-        LatLng point3 = new LatLng( startingLocation.latitude,
-                startingLocation.longitude + .001 );
-
-        PolygonOptions options = new PolygonOptions();
-        options.add( startingLocation, point2, point3 );
-
-        options.fillColor( getResources()
-                .getColor( R.color.fill_color ) );
-        options.strokeColor( getResources()
-                .getColor( R.color.stroke_color ) );
-        options.strokeWidth( 10 );
-
-        getMap().addPolygon( options );
-    }
-
-    private void drawOverlay( LatLng location, int width, int height ) {
-        GroundOverlayOptions options = new GroundOverlayOptions();
-        options.position( location, width, height );
-
-        options.image( BitmapDescriptorFactory
-                .fromBitmap( BitmapFactory
-                        .decodeResource( getResources(),
-                                R.mipmap.ic_launcher ) ) );
-        getMap().addGroundOverlay( options );
-    }
-
-    public void setNormal(){
-        curMapTypeIndex = 1;
-        getMap().setMapType( MAP_TYPES[curMapTypeIndex] );
-    }
-
-    public void setHybrid(){
-        curMapTypeIndex = 2;
-        getMap().setMapType( MAP_TYPES[curMapTypeIndex] );
-    }
-
-    public void setTerrain(){
-        curMapTypeIndex = 3;
-        getMap().setMapType( MAP_TYPES[curMapTypeIndex] );
-    }
-
-    public void setSatellite(){
-        curMapTypeIndex = 0;
-        getMap().setMapType( MAP_TYPES[curMapTypeIndex] );
-    }
-
-    public void drawLocation(){
-        location = ((MainActivity) this.getActivity()).getCurLocation();
-        if(location ==  null)
-            return;
-
-        loc = getMap().addMarker(new MarkerOptions()
-                .position(location)
-                .title("My Location")
-                .visible(true));
-        drawCircle(location);
     }
 
 }

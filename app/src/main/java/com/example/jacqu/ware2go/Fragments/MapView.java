@@ -350,7 +350,7 @@ public class MapView extends SupportMapFragment implements GoogleApiClient.Conne
                                 allMarker.add(getMap().addMarker(new MarkerOptions()
                                         .position(temp)
                                         .title(allLoc.get(temp).toString())
-                                        .alpha((float) Math.max(numPeople/50, 1.0))
+                                        .alpha((float) Math.max(numPeople/1150, 1.0))
                                         .visible(false))
                                 );
                             }

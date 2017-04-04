@@ -51,8 +51,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -101,17 +99,6 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        /*
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-        */
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -231,7 +218,6 @@ public class MainActivity extends AppCompatActivity
                 lvBldgs.add(bldgname);
             }
 
-
             lv.setAdapter(lvBldgs);
             lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 public void onItemClick(AdapterView<?> parent, View view,
@@ -321,31 +307,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void get_users(final VolleyCallback callback) {
-        //TODO: fill function
         String url = "http://192.168.43.72:3000/assistances";
-        StringRequest getRequest = new StringRequest(Request.Method.GET, url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        try {
-                            JSONArray jsonArray = new JSONArray(response);
-                            callback.onSuccessResponse(jsonArray);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.d("Error", error.toString());
-            }
-        });
-        ApplicationController.getInstance().addToRequestQueue(getRequest);
-    }
-
-    public void get_buildings(final VolleyCallback callback) {
-        //TODO: fill function
-        String url = "http://192.168.43.72:3000/locations";
         StringRequest getRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
                     @Override
@@ -456,8 +418,6 @@ public class MainActivity extends AppCompatActivity
         Log.v(TAG, "Pushed Connect to BT dongle");
     }
 
-
-
     final BroadcastReceiver bReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -524,6 +484,9 @@ public class MainActivity extends AppCompatActivity
         connected = false ;
     }
 
+    public boolean getConnected(){
+        return this.connected;
+    }
 
     // this call back function is run when an activity that returns a result ends.
     // Check the requestCode (given when we start the activity) to identify which
@@ -545,9 +508,6 @@ public class MainActivity extends AppCompatActivity
         try {
             // Attempt connection to the device through the socket.
             mmSocket.connect();
-            ((MainActivity)this.context).findViewById(R.id.pickdevice).setVisibility(View.INVISIBLE);
-            ((MainActivity)this.context).findViewById(R.id.visit).setVisibility(View.VISIBLE);
-
             Toast.makeText(context, "Connection Made", Toast.LENGTH_LONG).show();
         }
         catch (IOException connectException) {
@@ -590,8 +550,11 @@ public class MainActivity extends AppCompatActivity
     // This function reads a line of text from the Bluetooth device
     public String ReadFromBTDevice()
     {
-        byte c ;
         String s = "";
+        if(!connected){
+            return s;
+        }
+        byte c ;
         if(mmSocket == null){
             return s;
         }
@@ -609,123 +572,6 @@ public class MainActivity extends AppCompatActivity
             return "-- No Response --";
         }
         return "Something wrong";
-    }
-
-
-    public String swapEndian(String args) {
-        if(args.length() % 2 != 0) return "";
-        char[] argsArray = args.toCharArray();
-        char[] newChar = new char[args.length()];
-        int i = 0;
-        int j = args.length()-2;
-        while(i < args.length() && j >= 0) {
-            newChar[i] = argsArray[j];
-            newChar[i+1] = argsArray[j+1];
-            i += 2;
-            j -= 2;
-        }
-        String swapArgs = new String(newChar);
-        return swapArgs;
-    }
-
-    public void processGpsLog(String gpslog){
-        String[] gpslines = gpslog.split("\r\n");
-        for(int i = 0; i < gpslines.length; i++){
-            // check if valid line
-            if (gpslines[i].contains("*")){
-                // break if last lines
-                if (gpslines[i].contains("PMTKLOX,2") || gpslines[i].contains("$PMTK001")) {
-                    break;
-
-                } else if (gpslines[i].contains("$PMTKLOX,1,")) { // check if its a valid gps log line
-                    // split by comma
-                    String[] linesplit = gpslines[i].split(",");
-
-                    if (gpslines[i].length() < 10){
-                        continue;
-                    }
-
-                    // pop off the first 3 elements
-                    ArrayList<String> stringArrayList = new ArrayList<String>(Arrays.asList(linesplit));
-                    stringArrayList.remove(0);
-                    stringArrayList.remove(0);
-                    stringArrayList.remove(0);
-
-                    // remove * from last element
-                    String lastelement = stringArrayList.get(stringArrayList.size()-1);
-                    stringArrayList.set(stringArrayList.size()-1, lastelement.split("\\*")[0]);
-
-                    // convert back to one string
-                    String lineString;
-                    if (stringArrayList.size() > 0) {
-                        StringBuilder sB = new StringBuilder();
-                        for (String n : stringArrayList) {
-                            sB.append(n);
-                        }
-                        lineString = sB.toString();
-                    } else {
-                        lineString = "";
-                    }
-
-                    // get length and verify divisble by 32
-                    int len = lineString.length();
-                    if (len % 32 != 0){
-                        System.out.println("bad line encountered");
-                        continue;
-                    }
-
-                    // cut line into 32 byte chunks
-                    int chunks = lineString.length() / 32;
-                    LinkedList<String> chunkList = new LinkedList<String>();
-
-                    for(int j = 0; j < chunks; j++){
-                        String chunk = lineString.substring(32 * j, 32 * (j + 1));
-                        chunkList.add(chunk);
-                    }
-
-                    // parse each chunk
-                    for (String chunk : chunkList){
-                        String timeString = chunk.substring(0, 8);
-                        String latString = chunk.substring(10, 18);
-                        String lonString = chunk.substring(18, 26);
-
-                        timeString = swapEndian(timeString);
-                        latString = swapEndian(latString);
-                        lonString = swapEndian(lonString);
-
-                        // gps will send zero values if no such data exists
-                        if ( !(timeString.equals("FFFFFFFF") || latString.equals("FFFFFFFF") || lonString.equals("FFFFFFFF")) ) {
-                            // parse time, lat, lon
-                            long timeint = 0;
-                            Date timedate = new Date();
-                            double latfloat = 0.0;
-                            double lonfloat = 0.0;
-                            boolean success = true;
-
-                            // exception means there was probably something wrong with the data so we just ignore it
-                            try {
-                                timeint = Long.parseLong(timeString, 16);
-                                latfloat = Float.intBitsToFloat((int)Long.parseLong(latString, 16));
-                                lonfloat = Float.intBitsToFloat((int)Long.parseLong(lonString, 16));
-                                timedate.setTime(timeint * 1000);
-                            } catch (Exception e) { // bad data
-                                success = false;
-                            }
-                            // good data
-                            if (success) {
-                                // print the data
-                                // TODO: more productive stuff with it
-                                if (timeint > 1300000000 && latfloat >= -180 && latfloat <= 180 && lonfloat >= -180 && lonfloat <= 180) {
-                                    Log.v("GPSLOGDATA:", "time: " + timeint + " timedate: " + timedate + " lat: " + latfloat + " lon: " + lonfloat);
-                                }
-                            }
-                        }
-
-                    }
-
-                }
-            }
-        }
     }
 
     @Override

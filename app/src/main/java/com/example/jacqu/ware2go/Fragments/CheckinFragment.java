@@ -25,7 +25,6 @@ public class CheckinFragment extends Fragment {
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
                              Bundle savedInstanceState) {
        return inflater.inflate(R.layout.btcomms, container, false);
-
     }
 
     @Override
@@ -45,13 +44,14 @@ public class CheckinFragment extends Fragment {
         myListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
-
                 ma.connectFromListView(position-1);
+                if(ma.getConnected()) {
+                    ma.findViewById(R.id.pickdevice).setVisibility(View.INVISIBLE);
+                    ma.findViewById(R.id.visit).setVisibility(View.VISIBLE);
+                }
             }
         });
-        /*ArrayAdatper<String> myPairedArrayAdapter = new ArrayAdapter<String>(this.getActivity(), android.R.layout.simple_list_item_1);
-        myPairedArrayAdapter.add("BT ID: 00001");
-        */
+
         myButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

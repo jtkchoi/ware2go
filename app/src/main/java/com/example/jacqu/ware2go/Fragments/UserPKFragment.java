@@ -27,7 +27,7 @@ public class UserPKFragment extends Fragment {
     @Override
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
                              Bundle savedInstanceState) {
-       return inflater.inflate(R.layout.btcomms, container, false);
+       return inflater.inflate(R.layout.set_user_pk, container, false);
 
     }
 
@@ -36,7 +36,8 @@ public class UserPKFragment extends Fragment {
 
         final ListView myListView = (ListView) view.findViewById(R.id.pickdevice);
         final Button sendPkButton = (Button) view.findViewById(R.id.senduserpk);
-
+        final TextView curpkfield = (TextView) view.findViewById(R.id.curuserpk);
+        final TextView userpkfield = ((TextView) view.findViewById(R.id.setuserpkfield));
         ((MainActivity) this.getActivity()).listBt(view);
 
         final MainActivity ma = (MainActivity) this.getActivity();
@@ -49,16 +50,22 @@ public class UserPKFragment extends Fragment {
         myListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
-                userpkfield = ((TextView) ma.findViewById(R.id.userpkfield));
 
                 ma.connectFromListView(position-1);
-                sendPkButton.setVisibility(View.VISIBLE);
-                userpkfield.setVisibility(View.VISIBLE);
+                String curPK = "Something wrong";
+                for(int i = 0; curPK == "Something wrong" && i < 10; i++) {
+                    curPK = ma.ReadFromBTDevice();
+                }
+                curpkfield.setText("Current ID: " + curPK);
+                if(ma.getConnected()) {
+                    myListView.setVisibility(View.INVISIBLE);
+                    sendPkButton.setVisibility(View.VISIBLE);
+                    userpkfield.setVisibility(View.VISIBLE);
+                    curpkfield.setVisibility(View.VISIBLE);
+                }
             }
         });
-        /*eArrayAdatper<String> myPairedArrayAdapter = new ArrayAdapter<String>(this.getActivity(), android.R.layout.simple_list_item_1);
-        myPairedArrayAdapter.add("BT ID: 00001");
-        */
+
         sendPkButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
