@@ -22,6 +22,10 @@
                 android:id="@+id/nav_assist"
                 android:icon="@drawable/assistance"
                 android:title="Respond to Assistance" />
+            <item
+                android:id="@+id/ChangeUserPK"
+                android:icon="@drawable/checkin"
+                android:title="Change User ID of DE2" />
         </menu>
     </item>
 
