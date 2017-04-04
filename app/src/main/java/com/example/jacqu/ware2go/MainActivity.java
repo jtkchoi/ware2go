@@ -41,6 +41,7 @@ import com.example.jacqu.ware2go.Fragments.AssistanceFragment;
 import com.example.jacqu.ware2go.Fragments.CheckinFragment;
 import com.example.jacqu.ware2go.Fragments.JourneyFragment;
 import com.example.jacqu.ware2go.Fragments.MapFragment;
+import com.example.jacqu.ware2go.Fragments.UserPKFragment;
 import com.google.android.gms.maps.model.LatLng;
 
 import org.json.JSONArray;
@@ -78,7 +79,7 @@ public class MainActivity extends AppCompatActivity
     private ArrayList<BluetoothDevice> indexDevices;
     public static InputStream mmInStream = null;
     public static OutputStream mmOutStream = null;
-    private boolean Connected = false;
+    private boolean connected = false;
     public static final String PREFS_NAME = "MyPrefsFile";
     private JSONArray bldgInfo = null;
     private LatLng curLocation = new LatLng(49.2677982, -123.2564914);
@@ -281,6 +282,9 @@ public class MainActivity extends AppCompatActivity
         }else if (id == R.id.GPS_Log) {
             currFragment = R.id.GPS_Log;
             fragment = new JourneyFragment();
+        }else if (id == R.id.ChangeUserPK) {
+            currFragment = R.id.ChangeUserPK;
+            fragment = new UserPKFragment();
         }
         //NOTE: Fragment changing code
         if (fragment != null) {
@@ -503,21 +507,21 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    void closeConnection() {
+    public void closeConnection() {
         try {
             mmInStream.close();
             mmInStream = null;
-        } catch (IOException ignored) {}
+        } catch (Exception ignored) {}
         try {
             mmOutStream.close();
             mmOutStream = null;
-        } catch (IOException ignored) {}
+        } catch (Exception ignored) {}
         try {
             mmSocket.close();
             mmSocket = null;
-        } catch (IOException ignored) {}
+        } catch (Exception ignored) {}
 
-        Connected = false ;
+        connected = false ;
     }
 
 
@@ -553,7 +557,7 @@ public class MainActivity extends AppCompatActivity
 
         //create the input/output stream and record fact we have made a connection
         GetInputOutputStreamsForSocket(); // see page 26
-        Connected = true ;
+        connected = true ;
     }
 
     // gets the input/output stream associated with the current socket
