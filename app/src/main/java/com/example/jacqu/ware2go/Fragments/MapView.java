@@ -191,6 +191,7 @@ public class MapView extends SupportMapFragment implements GoogleApiClient.Conne
         return address;
     }
 
+
     @Override
     public boolean onMarkerClick(Marker marker) {
         marker.showInfoWindow();
@@ -276,6 +277,20 @@ public class MapView extends SupportMapFragment implements GoogleApiClient.Conne
     }
 
     public void initButtons(View view){
+        final MainActivity ma = (MainActivity) this.getActivity();
+
+        getMap().setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
+            @Override
+            public boolean onMyLocationButtonClick() {
+                Location l = new Location("");
+                location = ma.getCurLocation();
+                l.setLatitude(location.latitude);
+                l.setLongitude(location.longitude);
+                initCamera(l);
+                return true;
+            }
+        });
+
         final Button normalButton = (Button) view.findViewById(R.id.normal);
 
         normalButton.setOnClickListener(new View.OnClickListener() {
@@ -321,7 +336,6 @@ public class MapView extends SupportMapFragment implements GoogleApiClient.Conne
             }
         });
 
-        final MainActivity ma = (MainActivity) this.getContext();
         final ToggleButton showAll = (ToggleButton) view.findViewById(R.id.showall);
         showAll.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
