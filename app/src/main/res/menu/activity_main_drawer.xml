@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_map"
@@ -14,24 +13,32 @@
             android:id="@+id/GPS_Log"
             android:icon="@drawable/plot"
             android:title="Plot GPS Log" />
-    </group>
-
-    <item android:title="Administrator"
-        android:id="@+id/enable_admin">
-        <menu
+        <item
+            android:title="Administrator"
+            android:icon="@drawable/ic_open"
+            android:id="@+id/enable_admin" />
+        <item android:title="Administrator"
             android:id="@+id/admin"
             android:visible="false">
-            <group>
-            <item
-                android:id="@+id/nav_assist"
-                android:icon="@drawable/assistance"
-                android:title="Respond to Assistance" />
-            <item
-                android:id="@+id/ChangeUserPK"
-                android:icon="@drawable/user_id"
-                android:title="Change User ID of DE2" />
-            </group>
-        </menu>
-    </item>
+            <menu>
+                <group>
+                        <item
+                            android:id="@+id/nav_assist"
+                            android:icon="@drawable/assistance"
+                            android:title="Respond to Assistance" />
+                        <item
+                            android:id="@+id/ChangeUserPK"
+                            android:icon="@drawable/user_id"
+                            android:title="Change User ID of DE2" />
+                    <item
+                        android:title="Logout of Admin"
+                        android:id="@+id/close_admin"
+                        android:icon="@drawable/ic_fold"/>
+                </group>
+            </menu>
+        </item>
+    </group>
+
+
 
 </menu>

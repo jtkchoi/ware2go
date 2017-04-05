@@ -193,25 +193,9 @@ public class MainActivity extends AppCompatActivity
             ListView lv = new ListView(this.context);
             ArrayAdapter<String> lvBldgs = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
 
-  /*        Just for when server is off
-            if(bldgInfo == null) {
-                lvBldgs.add("1");
-                lvBldgs.add("2");
-                lvBldgs.add("3");
-                lvBldgs.add("4");
-                lv.setAdapter(lvBldgs);
-                lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    public void onItemClick(AdapterView<?> parent, View view,
-                                            int position, long id) {
-                        popup.dismiss();
-                    }
-                });
-                frame.addView(lv);
-                popup.setFocusable(true);
-                popup.setContentView(frame);
-                popup.showAtLocation(this.getCurrentFocus(), CENTER, 0, 100);
+            if(bldgInfo == null){
                 return false;
-            }*/
+            }
 
             for(int i = 0; i < bldgInfo.length(); i++){
                 JSONObject t;
@@ -282,11 +266,17 @@ public class MainActivity extends AppCompatActivity
             currFragment = R.id.ChangeUserPK;
             fragment = new UserPKFragment();
         }else if(id == R.id.enable_admin){
-            if(item.getSubMenu().hasVisibleItems()){
-                item.getSubMenu().setGroupVisible(0, false);
-            }else {
-                item.getSubMenu().setGroupVisible(0, true);
-            }
+            NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+            Menu navMenu = navigationView.getMenu();
+            navMenu.getItem(3).setVisible(false);
+            navMenu.getItem(4).setVisible(true);
+            return true;
+        }else if(id == R.id.close_admin){
+            NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+            Menu navMenu = navigationView.getMenu();
+            navMenu.getItem(3).setVisible(true);
+            navMenu.getItem(4).setVisible(false);
+            return true;
         }
         //NOTE: Fragment changing code
         if (fragment != null) {

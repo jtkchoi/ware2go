@@ -24,7 +24,7 @@ public class CheckinFragment extends Fragment {
     @Override
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
                              Bundle savedInstanceState) {
-       return inflater.inflate(R.layout.btcomms, container, false);
+       return inflater.inflate(R.layout.check_in_page, container, false);
     }
 
     @Override
@@ -60,6 +60,7 @@ public class CheckinFragment extends Fragment {
                 idnum = pid.replaceAll("[^0-9]", "");
                 ma.WriteToBTDevice("Send a reward here.");
                 ma.send_location(idnum);
+                myButton.setVisibility(View.INVISIBLE);
             }
         });
 
