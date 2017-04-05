@@ -16,8 +16,12 @@
             android:title="Plot GPS Log" />
     </group>
 
-    <item android:title="Communicate">
-        <menu>
+    <item android:title="Administrator"
+        android:id="@+id/enable_admin">
+        <menu
+            android:id="@+id/admin"
+            android:visible="false">
+            <group>
             <item
                 android:id="@+id/nav_assist"
                 android:icon="@drawable/assistance"
@@ -26,6 +30,7 @@
                 android:id="@+id/ChangeUserPK"
                 android:icon="@drawable/user_id"
                 android:title="Change User ID of DE2" />
+            </group>
         </menu>
     </item>
 

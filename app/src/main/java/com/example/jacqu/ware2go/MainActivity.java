@@ -281,6 +281,12 @@ public class MainActivity extends AppCompatActivity
         }else if (id == R.id.ChangeUserPK) {
             currFragment = R.id.ChangeUserPK;
             fragment = new UserPKFragment();
+        }else if(id == R.id.enable_admin){
+            if(item.getSubMenu().hasVisibleItems()){
+                item.getSubMenu().setGroupVisible(0, false);
+            }else {
+                item.getSubMenu().setGroupVisible(0, true);
+            }
         }
         //NOTE: Fragment changing code
         if (fragment != null) {
