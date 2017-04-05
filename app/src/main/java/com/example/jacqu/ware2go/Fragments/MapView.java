@@ -151,8 +151,6 @@ public class MapView extends SupportMapFragment implements GoogleApiClient.Conne
         getMap().setTrafficEnabled( true );
         getMap().setMyLocationEnabled( true );
         getMap().getUiSettings().setZoomControlsEnabled( true );
-        drawCircle(new LatLng( location.getLatitude(),
-                location.getLongitude() ));
     }
 
     @Override

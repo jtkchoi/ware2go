@@ -83,6 +83,7 @@ public class MainActivity extends AppCompatActivity
     private int curAssistanceID = -1;
     private LinkedList<LatLng> journeyLatLng;
     int bldgID;
+    String bldgName = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -124,10 +125,12 @@ public class MainActivity extends AppCompatActivity
             public void onSuccessResponse(Object result) {
                bldgInfo = (JSONArray) result;
                 try {
+                    JSONObject obj = bldgInfo.getJSONObject(bldgID);
                     curLocation = new LatLng(
-                            bldgInfo.getJSONObject(bldgID).getDouble("latitude"),
-                            bldgInfo.getJSONObject(bldgID).getDouble("longitude")
+                            obj.getDouble("latitude"),
+                            obj.getDouble("longitude")
                     );
+                    bldgName = obj.getString("name");
                 }
                 catch (Exception JSONException){
                     curLocation = new LatLng(0,0);
@@ -229,10 +232,12 @@ public class MainActivity extends AppCompatActivity
                                         int position, long id) {
                     try {
                         bldgID = bldgInfo.getJSONObject(position).getInt("id") - 1;
+                        JSONObject obj = bldgInfo.getJSONObject(bldgID);
                         curLocation = new LatLng(
-                                    bldgInfo.getJSONObject(bldgID).getDouble("latitude"),
-                                    bldgInfo.getJSONObject(bldgID).getDouble("longitude")
+                                    obj.getDouble("latitude"),
+                                    obj.getDouble("longitude")
                             );
+                        bldgName = obj.getString("name");
                     }
                     catch (Exception JSONException){
                         curLocation = new LatLng(0,0);
@@ -352,7 +357,7 @@ public class MainActivity extends AppCompatActivity
                     public void onResponse(String response) {
                         // response
                         Log.d("Response", response);
-                        Toast.makeText(getApplicationContext(), response.toString(), Toast.LENGTH_LONG).show();
+                        //Toast.makeText(getApplicationContext(), response.toString(), Toast.LENGTH_LONG).show();
                         tv.setText(response);
                         tv.setVisibility(View.VISIBLE);
                     }
@@ -378,6 +383,12 @@ public class MainActivity extends AppCompatActivity
         };
         ApplicationController.getInstance().addToRequestQueue(postRequest);
     }
+
+    /*
+     * getter for bldgName
+     */
+
+    public String getBldgName(){return bldgName;}
 
     /*
      * journeyLatLng getters and setters - used by JourneyMapView Fragment
@@ -601,6 +612,32 @@ public class MainActivity extends AppCompatActivity
             return "-- No Response --";
         }
         return "Something wrong";
+    }
+
+    // same as above, but contains a greater timeout and ability to read more bytes from GPS log
+    public String ReadLogFromBTDevice()
+    {
+        byte c ;
+        String s = "";
+
+        try { // Read from the InputStream using polling and timeout
+            for(int i = 0; i < 1000; i ++) { // try to read for 10 seconds max
+                SystemClock.sleep (10);
+                if( mmInStream.available () > 0) {
+                    if((c = (byte) mmInStream.read ()) != '\r') { // '\r' terminator
+                        s += (char) c; // build up string 1 byte by byte
+                        i--;
+                    }
+                    else{
+                        Log.v("RECVTAG", "Received String " + s);
+                        return s;
+                    }
+                }
+            }
+        } catch (IOException e) {
+            return "-- No Response --";
+        }
+        return s;
     }
 
     @Override

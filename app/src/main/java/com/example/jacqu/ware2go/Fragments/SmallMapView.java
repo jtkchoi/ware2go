@@ -127,6 +127,18 @@ public class SmallMapView extends SupportMapFragment implements GoogleApiClient.
                 .title("User ID " + user_id)
                 .visible(true));
 
+        getMap().setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
+            @Override
+            public boolean onMyLocationButtonClick() {
+                Location l = new Location("");
+                curLocation = ma.getCurLocation();
+                l.setLatitude(curLocation.latitude);
+                l.setLongitude(curLocation.longitude);
+                initCamera(l);
+                return true;
+            }
+        });
+
         if(user_id == -1){
             curLocation = defaultLocation;
             initCamera(userLocation);

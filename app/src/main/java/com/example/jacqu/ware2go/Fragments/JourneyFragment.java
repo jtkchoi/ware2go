@@ -21,13 +21,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Created by Bo on 2017-03-30.
  */
 
 public class JourneyFragment extends Fragment {
-    String pid;
+    String gpsLog;
     LinkedList<LatLng> latLngList;
     static String JOURNEYMSG = "JOURNEYMSG";
 
@@ -72,44 +73,16 @@ public class JourneyFragment extends Fragment {
         myButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                pid = ma.ReadFromBTDevice();
+                gpsLog = ma.ReadLogFromBTDevice();
 
-//                Log.v(JOURNEYMSG, "Got data from BT: " + pid);
+                Log.v(JOURNEYMSG, "Got log from BT: " + gpsLog);
 
 
-                pid = "$PMTKLOX,0,43*6E\r\r\n" +
-                        "$PMTKLOX,1,0,0100010B,1F000000,0F000000,0000100B,00000000,7FFFFFFF,FFFFFFFF,FFFFFFFF,FFFFFFFF,FFFFFFFF,\r\n" +
-                        "FFFFFFFF,FFFFFFFF,FFFFFFFF,FFFFFFFF,FFFFFF" +
-                        "FF,00FC8C1C,0B37464F,027FD670,42DC9EC6,4113007A,1A37464F,027FD670,42DC9EC6,4113006B*25\r\n" +
-                        "$PMTKLOX,1,1,2037464F,027FD670,42DD9EC6,41130050,2437464F,027FD670,42DD9EC6,41130054,2837464F," +
-                        "027FD670,42DD9EC6,41130058,2B37464F,027FD670,42DD9E" +
-                        "C6,4113005B,2E37464F,027FD670,42DD9EC6,4113005E,3D37464F,027FD670,42DC9EC6,4113004C*59\r\n" +
-                        "$PMTKLOX,1,2,4C37464F,027FD670,42DC9EC6,4113003D,5B37464F,027FD670,42DC9EC6,4113002A,6A37464" +
-                        "F,027FD670,42DD9EC6,4113001A,7937464F,027FD670,42DD9E" +
-                        "C6,41130009,8837464F,027FD670,42DD9EC6,411300F8,9737464F,027FD670,42DD9EC6,411300E7*5C\r\n" +
-                        "$PMTKLOX,1,3,A637464F,027FD670,42DD9EC6,411300D6,B537464F,027FD670,42DD9EC6,411300C5,C437464" +
-                        "F,027FD670,42DD9EC6,411300B4,D337464F,027FD670,42DD9E" +
-                        "C6,411300A3,E237464F,027FD670,42DD9EC6,41130092,F137464F,027FD670,42DD9EC6,41130081*59\r\n" +
-                        "$PMTKLOX,1,4,0038464F,027FD670,42DD9EC6,4113007F,0F38464F,027FD670,42DC9EC6,41130071,1E38464F," +
-                        "027FD670,42DC9EC6,41130060,2D38464F,027FD670,42DC9E" +
-                        "C6,41130053,3C38464F,027FD670,42DC9EC6,41130042,4B38464F,027FD670,42DD9EC6,41130034*58\r\n" +
-                        "$PMTKLOX,1,5,5A38464F,027FD670,42DD9EC6,41130025,6938464F,027FD670,42DC9EC6,41130017,7838464F" +
-                        ",027FD670,42DC9EC6,41130006,8738464F,027FD670,42DC9E" +
-                        "C6,411300F9,9638464F,027FD670,42DC9EC6,411300E8,A538464F,027FD670,42DD9EC6,411300DA*5D\r\n" +
-                        "$PMTKLOX,1,6,B438464F,027FD670,42DC9EC6,411300CA,FFFFFFFF,FFFFFFFF,FFFFFFFF,FFFFFFFF,FFFFFFFF,FFFFFFFF,F" +
-                        "FFFFFFF,FFFFFFFF,FFFFFFFF,FFFFFFFF,FFFFFF" +
-                        "FF,FFFFFFFF,FFFFFFFF,FFFFFFFF,FFFFFFFF,FFFFFFFF,FFFFFFFF,FFFFFFFF,FFFFFFFF,FFFFFFFF*58\r\n" +
-                        "$PMTKLOX,1,7,FFFFFFFF,FFFFFFFF,FFFFFFFF,FFFFFFFF,FFFFFFFF,FFFFFFFF,FFFFFFFF,FFFF" +
-                        "FFFF,FFFFFFFF,FFFFFFFF,FFFFFFFF,FFFFFFFF,FFFFFFFF,FFFFFFFF,FFFFFFFF,FFFFFFFF,FFF" +
-                        "FFFFF,FFFFFFFF,FFFFFFFF,FFFFFFFF,FFFFFFFF,FFFFFFFF,FFFFFFFF,FFFFFFFF*58\r\n" +
-                        "$PMTKLOX,2*47\r\n" +
-                        "$PMTK001,622,3*36\r\n";
-
-                processGpsLog(pid);
+                String replacedGpsLog = gpsLog.replace("rn", "\r\n");
 
                 latLngList = new LinkedList<LatLng>();
-                latLngList.add(new LatLng(49.267935, -123.258235));
-                latLngList.add(new LatLng(49.266975, -123.257329));
+
+                processGpsLog(replacedGpsLog, latLngList);
 
                 ma.setJourneyLatLng(latLngList);
                 FragmentManager fm = getFragmentManager();
@@ -137,7 +110,7 @@ public class JourneyFragment extends Fragment {
         return swapArgs;
     }
 
-    private void processGpsLog(String gpslog){
+    private void processGpsLog(String gpslog, List<LatLng> latLngList){
         String[] gpslines = gpslog.split("\r\n");
         for(int i = 0; i < gpslines.length; i++){
             // check if valid line
@@ -222,10 +195,10 @@ public class JourneyFragment extends Fragment {
                             }
                             // good data
                             if (success) {
-                                // print the data
-                                // TODO: more productive stuff with it
+                                // store data in LatLng list for plotting on map
                                 if (timeint > 1300000000 && latfloat >= -180 && latfloat <= 180 && lonfloat >= -180 && lonfloat <= 180) {
                                     Log.v("GPSLOGDATA:", "time: " + timeint + " timedate: " + timedate + " lat: " + latfloat + " lon: " + lonfloat);
+                                    latLngList.add(new LatLng(latfloat, lonfloat));
                                 }
                             }
                         }
