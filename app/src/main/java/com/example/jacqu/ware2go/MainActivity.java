@@ -285,6 +285,9 @@ public class MainActivity extends AppCompatActivity
         //NOTE: Fragment changing code
         if (fragment != null) {
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            if(connected){
+                closeConnection();
+            }
             ft.replace(R.id.mainFrame, fragment);
             ft.commit();
         }
