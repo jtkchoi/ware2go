@@ -123,7 +123,7 @@ public class MainActivity extends AppCompatActivity
         get_locations(new VolleyCallback() {
             @Override
             public void onSuccessResponse(Object result) {
-               bldgInfo = (JSONArray) result;
+                bldgInfo = (JSONArray) result;
                 try {
                     JSONObject obj = bldgInfo.getJSONObject(bldgID);
                     curLocation = new LatLng(
@@ -184,58 +184,7 @@ public class MainActivity extends AppCompatActivity
         //noinspection SimplifiableIfStatement
         View menuItemView = findViewById(R.id.mainFrame);
         if (id == R.id.action_changelocation) {
-
-            final PopupWindow popup = new PopupWindow(this);
-            popup.setBackgroundDrawable(new ColorDrawable(Color.WHITE));
-            popup.setWidth(750);
-            popup.setHeight(750);
-            RelativeLayout frame = new RelativeLayout(this);
-            ListView lv = new ListView(this.context);
-            ArrayAdapter<String> lvBldgs = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
-
-            if(bldgInfo == null){
-                return false;
-            }
-
-            for(int i = 0; i < bldgInfo.length(); i++){
-                JSONObject t;
-                String bldgname;
-                try {
-                    t = bldgInfo.getJSONObject(i);
-                    bldgname = t.getString("name");
-                }
-                catch (Exception JSONException){
-                    break;
-                }
-                lvBldgs.add(bldgname);
-            }
-
-            lv.setAdapter(lvBldgs);
-            lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                public void onItemClick(AdapterView<?> parent, View view,
-                                        int position, long id) {
-                    try {
-                        bldgID = bldgInfo.getJSONObject(position).getInt("id") - 1;
-                        JSONObject obj = bldgInfo.getJSONObject(bldgID);
-                        curLocation = new LatLng(
-                                    obj.getDouble("latitude"),
-                                    obj.getDouble("longitude")
-                            );
-                        bldgName = obj.getString("name");
-                    }
-                    catch (Exception JSONException){
-                        curLocation = new LatLng(0,0);
-                        bldgID = 0;
-                    }
-
-                    popup.dismiss();
-                }
-            });
-            frame.addView(lv);
-            popup.setFocusable(true);
-            popup.setContentView(frame);
-            popup.showAtLocation(this.getCurrentFocus(), CENTER_HORIZONTAL, 40, 200);
-
+            showPopup();
         }
 
         return false;
@@ -265,7 +214,9 @@ public class MainActivity extends AppCompatActivity
         }else if (id == R.id.ChangeUserPK) {
             currFragment = R.id.ChangeUserPK;
             fragment = new UserPKFragment();
-        }else if(id == R.id.enable_admin){
+        }else if(id == R.id.ChangeBldgID){
+            showPopup();
+        } else if(id == R.id.enable_admin){
             NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
             Menu navMenu = navigationView.getMenu();
             navMenu.getItem(3).setVisible(false);
@@ -293,7 +244,77 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+    private boolean showPopup(){
+        final PopupWindow popup = new PopupWindow(this);
+        popup.setBackgroundDrawable(new ColorDrawable(Color.WHITE));
+        popup.setWidth(750);
+        popup.setHeight(750);
+        RelativeLayout frame = new RelativeLayout(this);
+        ListView lv = new ListView(this.context);
+        ArrayAdapter<String> lvBldgs = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
 
+        if(bldgInfo == null){
+            get_locations(new VolleyCallback() {
+                @Override
+                public void onSuccessResponse(Object result) {
+                    bldgInfo = (JSONArray) result;
+                    try {
+                        JSONObject obj = bldgInfo.getJSONObject(bldgID);
+                        curLocation = new LatLng(
+                                obj.getDouble("latitude"),
+                                obj.getDouble("longitude")
+                        );
+                        bldgName = obj.getString("name");
+                    }
+                    catch (Exception JSONException){
+                        curLocation = new LatLng(0,0);
+                    }
+                }
+            });
+            if(bldgInfo == null)
+                return false;
+        }
+
+        for(int i = 0; i < bldgInfo.length(); i++){
+            JSONObject t;
+            String bldgname;
+            try {
+                t = bldgInfo.getJSONObject(i);
+                bldgname = t.getString("name");
+            }
+            catch (Exception JSONException){
+                break;
+            }
+            lvBldgs.add(bldgname);
+        }
+
+        lv.setAdapter(lvBldgs);
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> parent, View view,
+                                    int position, long id) {
+                try {
+                    bldgID = bldgInfo.getJSONObject(position).getInt("id") - 1;
+                    JSONObject obj = bldgInfo.getJSONObject(bldgID);
+                    curLocation = new LatLng(
+                            obj.getDouble("latitude"),
+                            obj.getDouble("longitude")
+                    );
+                    bldgName = obj.getString("name");
+                }
+                catch (Exception JSONException){
+                    curLocation = new LatLng(0,0);
+                    bldgID = 0;
+                }
+
+                popup.dismiss();
+            }
+        });
+        frame.addView(lv);
+        popup.setFocusable(true);
+        popup.setContentView(frame);
+        popup.showAtLocation(this.getCurrentFocus(), CENTER_HORIZONTAL, 40, 200);
+        return true;
+    }
     /*
      * Calls to server:
      * get_locations
@@ -500,7 +521,7 @@ public class MainActivity extends AppCompatActivity
         // Get a Bluetooth Socket to connect with the given BluetoothDevice
         try {
             // MY_UUID is the app's UUID string, also used by the server code
-                mmSocket = device.createRfcommSocketToServiceRecord(MY_UUID);
+            mmSocket = device.createRfcommSocketToServiceRecord(MY_UUID);
         } catch (IOException e) {
             Toast.makeText(context, "Socket Creation Failed", Toast.LENGTH_LONG).show();
         }

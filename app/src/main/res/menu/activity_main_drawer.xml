@@ -22,14 +22,18 @@
             android:visible="false">
             <menu>
                 <group>
-                        <item
-                            android:id="@+id/nav_assist"
-                            android:icon="@drawable/assistance"
-                            android:title="Respond to Assistance" />
-                        <item
-                            android:id="@+id/ChangeUserPK"
-                            android:icon="@drawable/user_id"
-                            android:title="Change User ID of DE2" />
+                    <item
+                        android:id="@+id/nav_assist"
+                        android:icon="@drawable/assistance"
+                        android:title="Respond to Assistance" />
+                    <item
+                        android:id="@+id/ChangeUserPK"
+                        android:icon="@drawable/user_id"
+                        android:title="Change User ID of DE2" />
+                    <item
+                        android:id="@+id/ChangeBldgID"
+                        android:icon="@drawable/ic_bldg"
+                        android:title="Change Buidling ID of Current Device" />
                     <item
                         android:title="Logout of Admin"
                         android:id="@+id/close_admin"
