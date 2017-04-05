@@ -609,6 +609,32 @@ public class MainActivity extends AppCompatActivity
         return "Something wrong";
     }
 
+    // same as above, but contains a greater timeout and ability to read more bytes from GPS log
+    public String ReadLogFromBTDevice()
+    {
+        byte c ;
+        String s = "";
+
+        try { // Read from the InputStream using polling and timeout
+            for(int i = 0; i < 1000; i ++) { // try to read for 10 seconds max
+                SystemClock.sleep (10);
+                if( mmInStream.available () > 0) {
+                    if((c = (byte) mmInStream.read ()) != '\r') { // '\r' terminator
+                        s += (char) c; // build up string 1 byte by byte
+                        i--;
+                    }
+                    else{
+                        Log.v("RECVTAG", "Received String " + s);
+                        return s;
+                    }
+                }
+            }
+        } catch (IOException e) {
+            return "-- No Response --";
+        }
+        return s;
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
