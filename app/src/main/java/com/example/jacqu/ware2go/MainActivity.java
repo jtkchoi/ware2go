@@ -154,6 +154,11 @@ public class MainActivity extends AppCompatActivity
             if(currFragment != R.id.nav_map) {
                 currFragment = R.id.nav_map;
                 FragmentTransaction ft = fm.beginTransaction();
+                if(connected){
+                    btOff(this.getCurrentFocus());
+                    btOn(this.getCurrentFocus());
+                    connected = false;
+                }
                 ft.replace(R.id.mainFrame, new MapFragment());
                 ft.commit();
             }
