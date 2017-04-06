@@ -105,14 +105,29 @@ public class JourneyMapView extends SupportMapFragment implements GoogleApiClien
 //        initButtons(this.getView().getRootView());
         mGoogleApiClient.connect();
 
-        location = ((MainActivity) this.getActivity()).getCurLocation();
-        if(location == null)
-            location = new LatLng(49.2677982, -123.2564914);
+        location = new LatLng(49.2677982, -123.2564914);
 
         loc = getMap().addMarker(new MarkerOptions()
                 .position(location)
                 .title("My Location")
                 .visible(false));
+
+        Location l = new Location("");
+        l.setLatitude(location.latitude);
+        l.setLongitude(location.longitude);
+        initCamera(l);
+
+        //When location button pressed, move to current location
+        getMap().setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
+            @Override
+            public boolean onMyLocationButtonClick() {
+                Location l = new Location("");
+                l.setLatitude(location.latitude);
+                l.setLongitude(location.longitude);
+                initCamera(l);
+                return true;
+            }
+        });
     }
 
     @Override
