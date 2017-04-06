@@ -1,6 +1,5 @@
 package com.example.jacqu.ware2go.Fragments;
 
-import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
@@ -21,20 +20,18 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
-import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.PolygonOptions;
 
 import org.json.JSONObject;
 
 /**
  * Created by jacqu on 3/2/2017.
+ * Creates a small map for the popup in the assistance fragment
  */
 
 public class SmallMapView extends SupportMapFragment implements GoogleApiClient.ConnectionCallbacks,
@@ -93,6 +90,7 @@ public class SmallMapView extends SupportMapFragment implements GoogleApiClient.
         initListeners();
     }
 
+    //Null all the listeners - we don't need them
     private void initListeners() {
         getMap().setOnMarkerClickListener(this);
         getMap().setOnMapLongClickListener(this);
@@ -127,6 +125,7 @@ public class SmallMapView extends SupportMapFragment implements GoogleApiClient.
                 .title("User ID " + user_id)
                 .visible(true));
 
+        //Move the map to move to location when clicked
         getMap().setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
             @Override
             public boolean onMyLocationButtonClick() {
@@ -139,6 +138,7 @@ public class SmallMapView extends SupportMapFragment implements GoogleApiClient.
             }
         });
 
+        //if user invalid, just init to default location
         if(user_id == -1){
             curLocation = defaultLocation;
             initCamera(userLocation);
@@ -154,6 +154,7 @@ public class SmallMapView extends SupportMapFragment implements GoogleApiClient.
             return;
         }
 
+        //get the user's location from the server, continuously pulling from the server
         getUserLocation(user_id, new VolleyCallback() {
             @Override
             public void onSuccessResponse(Object result) {
@@ -183,6 +184,7 @@ public class SmallMapView extends SupportMapFragment implements GoogleApiClient.
         },2000);
     }
 
+    //Request from server to get user's up-to-date location
     public void getUserLocation(int user, final VolleyCallback callback) {
         String url = "http://192.168.43.72:3000/assistance/" + user + "/location";
         StringRequest getRequest = new StringRequest(Request.Method.GET, url,
@@ -205,14 +207,14 @@ public class SmallMapView extends SupportMapFragment implements GoogleApiClient.
         ApplicationController.getInstance().addToRequestQueue(getRequest);
     }
 
+    //Move location marker to new position, to avoid drawing multiple markers
     public void drawLocation(LatLng l){
         loc.setTitle("User ID " + user_id);
         loc.setPosition(l);
         loc.setVisible(true);
     }
 
-
-
+    //Reset location by pulling data from server again, move to new location if changed
     public void resetLoc(MainActivity ma){
         user_id = ma.getAssistanceUser();
         if(user_id ==  -1)
@@ -242,15 +244,7 @@ public class SmallMapView extends SupportMapFragment implements GoogleApiClient.
 
     }
 
-    private void moveCamera( ) {
-        if(userLocation == null)
-            return;
-        this.getMap().moveCamera(CameraUpdateFactory.newLatLng(new LatLng( userLocation.getLatitude(),
-                        userLocation.getLongitude())));
-        drawCircle(new LatLng( userLocation.getLatitude(),
-                userLocation.getLongitude() ));
-    }
-
+    //Change camera position to new location
     private void initCamera( Location location ) {
         CameraPosition position = CameraPosition.builder()
                 .target( new LatLng( location.getLatitude(),
@@ -287,6 +281,7 @@ public class SmallMapView extends SupportMapFragment implements GoogleApiClient.
         return true;
     }
 
+    //Draw circle around assistance location, remove old circle
     Circle prevCircle = null;
     private void drawCircle( LatLng location ) {
         if (prevCircle != null){
@@ -303,36 +298,4 @@ public class SmallMapView extends SupportMapFragment implements GoogleApiClient.
 
         prevCircle = getMap().addCircle(options);
     }
-
-    private void drawPolygon( LatLng startingLocation ) {
-        LatLng point2 = new LatLng( startingLocation.latitude + .001,
-                startingLocation.longitude );
-        LatLng point3 = new LatLng( startingLocation.latitude,
-                startingLocation.longitude + .001 );
-
-        PolygonOptions options = new PolygonOptions();
-        options.add( startingLocation, point2, point3 );
-
-        options.fillColor( getResources()
-                .getColor( R.color.fill_color ) );
-        options.strokeColor( getResources()
-                .getColor( R.color.stroke_color ) );
-        options.strokeWidth( 10 );
-
-        getMap().addPolygon( options );
-    }
-
-    private void drawOverlay( LatLng location, int width, int height ) {
-        GroundOverlayOptions options = new GroundOverlayOptions();
-        options.position( location, width, height );
-
-        options.image( BitmapDescriptorFactory
-                .fromBitmap( BitmapFactory
-                        .decodeResource( getResources(),
-                                R.mipmap.ic_launcher ) ) );
-        getMap().addGroundOverlay( options );
-    }
-
-
-
 }

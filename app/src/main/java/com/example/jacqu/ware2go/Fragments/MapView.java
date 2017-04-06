@@ -22,11 +22,9 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
-import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.PolygonOptions;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -133,8 +131,6 @@ public class MapView extends SupportMapFragment implements GoogleApiClient.Conne
 
     }
 
-
-
     private void initCamera( Location location ) {
         CameraPosition position = CameraPosition.builder()
                 .target( new LatLng( location.getLatitude(),
@@ -196,6 +192,7 @@ public class MapView extends SupportMapFragment implements GoogleApiClient.Conne
         return true;
     }
 
+    //Draw circle around current location, remove previous circle
     Circle prevCircle = null;
     private void drawCircle( LatLng location ) {
         if (prevCircle != null){
@@ -211,35 +208,6 @@ public class MapView extends SupportMapFragment implements GoogleApiClient.Conne
         options.strokeWidth( 3 );
 
         prevCircle = getMap().addCircle(options);
-    }
-
-    private void drawPolygon( LatLng startingLocation ) {
-        LatLng point2 = new LatLng( startingLocation.latitude + .001,
-                startingLocation.longitude );
-        LatLng point3 = new LatLng( startingLocation.latitude,
-                startingLocation.longitude + .001 );
-
-        PolygonOptions options = new PolygonOptions();
-        options.add( startingLocation, point2, point3 );
-
-        options.fillColor( getResources()
-                .getColor( R.color.fill_color ) );
-        options.strokeColor( getResources()
-                .getColor( R.color.stroke_color ) );
-        options.strokeWidth( 10 );
-
-        getMap().addPolygon( options );
-    }
-
-    private void drawOverlay( LatLng location, int width, int height ) {
-        GroundOverlayOptions options = new GroundOverlayOptions();
-        options.position( location, width, height );
-
-        options.image( BitmapDescriptorFactory
-                .fromBitmap( BitmapFactory
-                        .decodeResource( getResources(),
-                                R.mipmap.ic_launcher ) ) );
-        getMap().addGroundOverlay( options );
     }
 
     public void setNormal(){
@@ -262,6 +230,7 @@ public class MapView extends SupportMapFragment implements GoogleApiClient.Conne
         getMap().setMapType( MAP_TYPES[curMapTypeIndex] );
     }
 
+    //Draw location at location specified by MainActivity (can be set by admin)
     public void drawLocation(){
         location = ((MainActivity) this.getActivity()).getCurLocation();
         if(location ==  null)
@@ -277,6 +246,7 @@ public class MapView extends SupportMapFragment implements GoogleApiClient.Conne
     public void initButtons(View view){
         final MainActivity ma = (MainActivity) this.getActivity();
 
+        //When location button pressed, move to current location
         getMap().setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
             @Override
             public boolean onMyLocationButtonClick() {
@@ -289,6 +259,7 @@ public class MapView extends SupportMapFragment implements GoogleApiClient.Conne
             }
         });
 
+        //Changes map type buttons
         final Button normalButton = (Button) view.findViewById(R.id.normal);
 
         normalButton.setOnClickListener(new View.OnClickListener() {
@@ -322,6 +293,7 @@ public class MapView extends SupportMapFragment implements GoogleApiClient.Conne
             }
         });
 
+        //Show current location, or hide current location
         final ToggleButton showLoc = (ToggleButton) view.findViewById(R.id.showloc);
         showLoc.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -334,6 +306,7 @@ public class MapView extends SupportMapFragment implements GoogleApiClient.Conne
             }
         });
 
+        //Show all users, or hide all users - get user location from server
         final ToggleButton showAll = (ToggleButton) view.findViewById(R.id.showall);
         showAll.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {

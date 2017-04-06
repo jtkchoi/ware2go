@@ -53,6 +53,7 @@ public class AssistanceFragment extends Fragment {
         ArrayAdapter<String> userlist = new ArrayAdapter<String>(ma, android.R.layout.simple_list_item_1);
         myListView.setAdapter(userlist);
 
+        //Get assistance users, add users to listView with their assistance msg
         ma.get_users(new VolleyCallback() {
             @Override
             public void onSuccessResponse(Object result) {
@@ -76,6 +77,7 @@ public class AssistanceFragment extends Fragment {
             }
         });
 
+        //When an assistance user is selected, show popup of the position on map
         myListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {

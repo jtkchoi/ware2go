@@ -15,6 +15,7 @@ import com.example.jacqu.ware2go.R;
 
 /**
  * A simple {@link Fragment} subclass.
+ * Fragment to checkin to a location
  */
 
 public class CheckinFragment extends Fragment {
@@ -29,19 +30,20 @@ public class CheckinFragment extends Fragment {
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-
+        //Get variables to add onClickListeners / dynamically set attributes
         final ListView myListView = (ListView) view.findViewById(R.id.pickdevice);
         final Button myButton = (Button) view.findViewById(R.id.visit);
-
-        ((MainActivity) this.getActivity()).listBt(view);
-
         final MainActivity ma = (MainActivity) this.getActivity();
+        ma.listBt(view);
+
+        //Display meaningful text
         TextView tv1 = new TextView(this.getContext());
         tv1.setText("Select your device and press broadcast.");
         myListView.addHeaderView(tv1);
         myButton.setText("Check in to " + ma.getBldgName());
 
-
+        //Set onClickListener of listview to connect to bluetooth device selected
+        //Also shows button and hides listview when successfully connected
         myListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
@@ -53,12 +55,12 @@ public class CheckinFragment extends Fragment {
             }
         });
 
+        //When button clicked to receive prize, we get the id from the de2 and send it to the servere
         myButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 pid = ma.ReadFromBTDevice();
                 idnum = pid.replaceAll("[^0-9]", "");
-                ma.WriteToBTDevice("Send a reward here.");
                 ma.send_location(idnum);
                 myButton.setVisibility(View.INVISIBLE);
             }

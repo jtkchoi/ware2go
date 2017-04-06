@@ -10,6 +10,7 @@ import com.example.jacqu.ware2go.R;
 
 /**
  * Created by jacqu on 3/2/2017.
+ * This view solely exists to act as a parent for the main map view
  */
 
 public class MapFragment extends Fragment{
@@ -18,6 +19,5 @@ public class MapFragment extends Fragment{
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
                              Bundle savedInstanceState) {
         return inflater.inflate(R.layout.map_main, container, false);
-
     }
 }

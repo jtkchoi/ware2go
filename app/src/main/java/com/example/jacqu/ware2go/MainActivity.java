@@ -293,8 +293,8 @@ public class MainActivity extends AppCompatActivity
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
                 try {
-                    bldgID = bldgInfo.getJSONObject(position).getInt("id") - 1;
-                    JSONObject obj = bldgInfo.getJSONObject(bldgID);
+                    JSONObject obj = bldgInfo.getJSONObject(position);
+                    bldgID = obj.getInt("id");
                     curLocation = new LatLng(
                             obj.getDouble("latitude"),
                             obj.getDouble("longitude")
