@@ -53,9 +53,8 @@ public class UserPKFragment extends Fragment {
                                     int position, long id) {
 
                 ma.connectFromListView(position-1);
-                String curPK = "8";
 
-                curpkfield.setText("Current ID: " + curPK);
+                curpkfield.setText("Please enter your desired User ID");
                 if(ma.getConnected()) {
                     myListView.setVisibility(View.INVISIBLE);
                     sendPkButton.setVisibility(View.VISIBLE);
