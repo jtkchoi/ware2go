@@ -14,8 +14,7 @@ import com.example.jacqu.ware2go.MainActivity;
 import com.example.jacqu.ware2go.R;
 
 /**
- * A simple {@link Fragment} subclass.
- * Fragment to checkin to a location
+ * Fragment to handle user check-in view
  */
 
 public class CheckinFragment extends Fragment {

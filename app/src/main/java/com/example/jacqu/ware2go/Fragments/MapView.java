@@ -35,6 +35,8 @@ import java.util.HashMap;
 
 /**
  * Created by jacqu on 3/2/2017.
+ *
+ * Code to handle the default Google Maps View
  */
 
 public class MapView extends SupportMapFragment implements GoogleApiClient.ConnectionCallbacks,
@@ -98,11 +100,13 @@ public class MapView extends SupportMapFragment implements GoogleApiClient.Conne
     }
 
     @Override
+
     public void onStart() {
         super.onStart();
         initButtons(this.getView().getRootView());
         mGoogleApiClient.connect();
 
+        // Center the map on a location
         location = ((MainActivity) this.getActivity()).getCurLocation();
         if(location == null)
             location = new LatLng(49.2677982, -123.2564914);

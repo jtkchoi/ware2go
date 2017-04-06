@@ -16,14 +16,11 @@ import com.example.jacqu.ware2go.MainActivity;
 import com.example.jacqu.ware2go.R;
 
 /**
- * A simple {@link Fragment} subclass.
+ * Fragment to handle the change of User ID on th eDE2
  */
 
 public class UserPKFragment extends Fragment {
     static String USERPKLOG = "USERPK";
-    TextView userpkfield;
-    String pid;
-    String idnum;
 
     @Override
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
@@ -64,6 +61,10 @@ public class UserPKFragment extends Fragment {
             }
         });
 
+        /*
+            Code to send the user ID to the DE2
+            Encoded in format DE2 an read
+         */
         sendPkButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

@@ -68,6 +68,9 @@ public class JourneyMapView extends SupportMapFragment implements GoogleApiClien
 
     }
 
+    /*
+        Create the map View
+     */
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -83,6 +86,9 @@ public class JourneyMapView extends SupportMapFragment implements GoogleApiClien
         initListeners();
         List<LatLng> latLngList = ((MainActivity) this.getActivity()).getJourneyLatLng();
 
+        /*
+            Render the polyline of GPS coordinates from GPS log
+         */
         GoogleMap map = getMap();
         for(int i = 0; i < latLngList.size()-1; i++){
             Polyline line = map.addPolyline(new PolylineOptions()
@@ -102,7 +108,6 @@ public class JourneyMapView extends SupportMapFragment implements GoogleApiClien
     @Override
     public void onStart() {
         super.onStart();
-//        initButtons(this.getView().getRootView());
         mGoogleApiClient.connect();
 
         location = new LatLng(49.2677982, -123.2564914);
@@ -163,8 +168,9 @@ public class JourneyMapView extends SupportMapFragment implements GoogleApiClien
 
     }
 
-
-
+    /*
+        Initialize the view of the Map Fragment
+     */
     private void initCamera( Location location ) {
         CameraPosition position = CameraPosition.builder()
                 .target( new LatLng( location.getLatitude(),

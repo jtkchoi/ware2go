@@ -1,20 +1,10 @@
-package com.example.jacqu.ware2go.Fragments;
+package com.example.jacqu.ware2go;
 
-import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.Button;
-import android.widget.ListView;
-import android.widget.TextView;
 
-import com.example.jacqu.ware2go.MainActivity;
-import com.example.jacqu.ware2go.R;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
@@ -24,92 +14,16 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Created by Bo on 2017-03-30.
- *
- * Code used to manage the Fragement of handling plotting the GPS log sent from DE2 to Android
+ * Unit Tests for Ware2GO
  */
-
-public class JourneyFragment extends Fragment {
-    String gpsLog;
-    LinkedList<LatLng> latLngList;
-    static String JOURNEYMSG = "JOURNEYMSG";
-
-    @Override
-    public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
-                             Bundle savedInstanceState) {
-
-        return inflater.inflate(R.layout.journey_init, container, false);
-
-    }
-
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-
-        final ListView myListView = (ListView) view.findViewById(R.id.pickdevice);
-        final Button myButton = (Button) view.findViewById(R.id.visit);
-
-        ((MainActivity) this.getActivity()).listBt(view);
-
-        final MainActivity ma = (MainActivity) this.getActivity();
-        TextView tv1 = new TextView(this.getContext());
-        tv1.setText("Select your Ware2GO device and press \"Send log!\"");
-        myListView.addHeaderView(tv1);
-
-
-
-        myListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View view,
-                                    int position, long id) {
-                // CONNECTING CODE
-                Log.v(JOURNEYMSG, "connecting to index: " + position);
-                ma.connectFromListView(position-1);
-
-                ma.findViewById(R.id.pickdevice).setVisibility(View.INVISIBLE);
-                ma.findViewById(R.id.visit).setVisibility(View.VISIBLE);
-            }
-        });
-
-        myButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                gpsLog = ma.ReadLogFromBTDevice();
-
-                Log.v(JOURNEYMSG, "Got log from BT: " + gpsLog);
-
-
-                String replacedGpsLog = gpsLog.replace("rn", "\r\n");
-
-                latLngList = new LinkedList<LatLng>();
-
-                processGpsLog(replacedGpsLog, latLngList);
-
-                ma.setJourneyLatLng(latLngList);
-                FragmentManager fm = getFragmentManager();
-                FragmentTransaction ft = fm.beginTransaction();
-                ft.replace(R.id.mainFrame, new JourneyMapView());
-                ft.commit();
-            }
-        });
-
-    }
-
-    /*
-        Swap big and little Endian of the individual bytes of the GPS Log
-     */
-    private String swapEndian(String args) {
-        if(args.length() % 2 != 0) return "";
-        char[] argsArray = args.toCharArray();
-        char[] newChar = new char[args.length()];
-        int i = 0;
-        int j = args.length()-2;
-        while(i < args.length() && j >= 0) {
-            newChar[i] = argsArray[j];
-            newChar[i+1] = argsArray[j+1];
-            i += 2;
-            j -= 2;
-        }
-        String swapArgs = new String(newChar);
-        return swapArgs;
+public class ExampleUnitTest {
+    @Test
+    public void test_gps_parser() throws Exception {
+        List<LatLng> latLngList = new LinkedList<LatLng>;
+        String gps_line = "$PMTKLOX,1,3,A637464F,027FD670,42DD9EC6,411300D6,B537464F,027FD670,42DD9EC6,411300C5,C437464F,027FD670,42DD9EC6,411300B4,D337464F,027FD670,42DD9EC6,411300A3,E237464F,027FD670,42DD9EC6,41130092,F137464F,027FD670,42DD9EC6,41130081*59\r\n" +
+                "$PMTKLOX,1,4,0038464F,027FD670,42DD9EC6,4113007F,0F38464F,027FD670,42DC9EC6,41130071,1E38464F,027FD670,42DC9EC6,41130060,2D38464F,027FD670,42DC9EC6,41130053,3C38464F,027FD670,42DC9EC6,41130042,4B38464F,027FD670,42DD9EC6,41130034*58";
+        processGpsLog(gps_line, latLngList);
+        assertTrue(latLngList.size() > 0);
     }
 
     /*
@@ -214,4 +128,6 @@ public class JourneyFragment extends Fragment {
             }
         }
     }
+
+
 }
