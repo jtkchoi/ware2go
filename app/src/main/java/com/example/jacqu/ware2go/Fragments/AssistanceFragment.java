@@ -22,7 +22,7 @@ import org.json.JSONObject;
 import static android.view.Gravity.CENTER;
 
 /**
- * A simple {@link Fragment} subclass.
+ * Fragment to handle the area administrator Assistance View
  */
 
 public class AssistanceFragment extends Fragment {

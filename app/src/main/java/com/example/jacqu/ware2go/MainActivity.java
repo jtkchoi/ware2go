@@ -61,6 +61,7 @@ import static android.view.Gravity.CENTER_HORIZONTAL;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+    private String SERVER_IP = "http://192.168.43.72:3000";
     private final static int REQUEST_ENABLE_BT = 1;
     private static final String TAG = "BTTAG";
     private BluetoothAdapter mBluetoothAdapter;
@@ -190,6 +191,9 @@ public class MainActivity extends AppCompatActivity
         return false;
     }
 
+    /*
+        Handler for different Fragments - Render fragment based on user election
+     */
     int currFragment = R.id.nav_map;
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
@@ -229,7 +233,7 @@ public class MainActivity extends AppCompatActivity
             navMenu.getItem(4).setVisible(false);
             return true;
         }
-        //NOTE: Fragment changing code
+        // Fragment changing code
         if (fragment != null) {
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             if(connected){
@@ -324,7 +328,7 @@ public class MainActivity extends AppCompatActivity
      * VolleyCallback is used to return from function and handle success response
      */
     public void get_locations(final VolleyCallback callback) {
-        String url = "http://192.168.43.72:3000/locations";
+        String url = SERVER_IP + "/locations";
         StringRequest getRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
                     @Override
@@ -346,7 +350,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void get_users(final VolleyCallback callback) {
-        String url = "http://192.168.43.72:3000/assistances";
+        String url = SERVER_IP + "/assistances";
         StringRequest getRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
                     @Override
@@ -367,9 +371,12 @@ public class MainActivity extends AppCompatActivity
         ApplicationController.getInstance().addToRequestQueue(getRequest);
     }
 
+    /*
+        Function used to send the current user location to the Server
+     */
     public void send_location(final String id) {
         final TextView tv = (TextView) this.findViewById(R.id.server_msg);
-        String url = "http://192.168.43.72:3000/visited";
+        String url = SERVER_IP + "/visited";
         StringRequest postRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>()
                 {
@@ -407,7 +414,6 @@ public class MainActivity extends AppCompatActivity
     /*
      * getter for bldgName
      */
-
     public String getBldgName(){return bldgName;}
 
     /*
@@ -432,6 +438,9 @@ public class MainActivity extends AppCompatActivity
         return this.curAssistanceID;
     }
 
+    /*
+        Enable Bluetooth Devices
+     */
     public void btOn(View view){
         Log.v(TAG, "Pushed BT on");
         if (mBluetoothAdapter != null) {
@@ -451,6 +460,9 @@ public class MainActivity extends AppCompatActivity
         return;
     }
 
+    /*
+        List Paired bluetooth devices
+     */
     public void listBt( View v ){
         myPairedArrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -467,6 +479,9 @@ public class MainActivity extends AppCompatActivity
         ((ListView) v.findViewById(R.id.pickdevice)).setAdapter(myPairedArrayAdapter);
     }
 
+    /*
+        Connect to a Bluetooth device from a list of devices
+     */
     public void connectFromListView( int index ){
         if(index == -1){return;}
         BluetoothDevice btd = indexDevices.get(index);
@@ -474,9 +489,6 @@ public class MainActivity extends AppCompatActivity
         ConnectToSerialBlueToothDevice();
     }
 
-    public void connectToDongle(View view){
-        Log.v(TAG, "Pushed Connect to BT dongle");
-    }
 
     final BroadcastReceiver bReceiver = new BroadcastReceiver() {
         @Override
@@ -501,6 +513,7 @@ public class MainActivity extends AppCompatActivity
         }
     };
 
+    // function to find discoverable Bluetooth devices
     public void findBt(View view){
         Log.v(TAG, "Pushed find BT");
         if (mBluetoothAdapter.isDiscovering()){
@@ -527,6 +540,7 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    // close connection to Bluetooth
     public void closeConnection() {
         try {
             mmInStream.close();

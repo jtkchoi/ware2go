@@ -25,6 +25,8 @@ import java.util.List;
 
 /**
  * Created by Bo on 2017-03-30.
+ *
+ * Code used to manage the Fragement of handling plotting the GPS log sent from DE2 to Android
  */
 
 public class JourneyFragment extends Fragment {
@@ -62,14 +64,11 @@ public class JourneyFragment extends Fragment {
                 Log.v(JOURNEYMSG, "connecting to index: " + position);
                 ma.connectFromListView(position-1);
 
-                // uncomment
                 ma.findViewById(R.id.pickdevice).setVisibility(View.INVISIBLE);
                 ma.findViewById(R.id.visit).setVisibility(View.VISIBLE);
             }
         });
-        /*ArrayAdatper<String> myPairedArrayAdapter = new ArrayAdapter<String>(this.getActivity(), android.R.layout.simple_list_item_1);
-        myPairedArrayAdapter.add("BT ID: 00001");
-        */
+
         myButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -94,6 +93,9 @@ public class JourneyFragment extends Fragment {
 
     }
 
+    /*
+        Swap big and little Endian of the individual bytes of the GPS Log
+     */
     private String swapEndian(String args) {
         if(args.length() % 2 != 0) return "";
         char[] argsArray = args.toCharArray();
@@ -110,6 +112,9 @@ public class JourneyFragment extends Fragment {
         return swapArgs;
     }
 
+    /*
+        This function processes the GPS log sent from the DE2 and will extract the list of Lattitude and Longitude
+     */
     private void processGpsLog(String gpslog, List<LatLng> latLngList){
         String[] gpslines = gpslog.split("\r\n");
         for(int i = 0; i < gpslines.length; i++){
